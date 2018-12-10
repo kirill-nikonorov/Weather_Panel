@@ -1,28 +1,30 @@
 import React from "react"
 
-class Search extends React.Component {
+import {Input} from 'antd';
+
+const Search = Input.Search;
+
+
+class CitySearch extends React.Component {
     constructor(props) {
         super(props);
     }
 
-    handleSubmit = () => {
-
-
-    };
-
-    handleChange = (e) => {
-     //   console.log("handleChange = ", e.target.value);
-    };
-
     render() {
-        const {onSearch} = this.props;
+
+        const {onSearch, placeholder} = this.props;
         return (
             <div>
-                <input type={'text'} onChange={this.handleChange}/>
-                <button onClick={this.handleSubmit}>Ok</button>
+                <Search
+                    placeholder={placeholder}
+
+                    onSearch={onSearch}
+                    enterButton
+                    size="large"
+                />
             </div>
         )
     }
 }
 
-export default Search;
+export default CitySearch;

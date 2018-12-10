@@ -1,26 +1,46 @@
-import {fetchWeatherForCityByName} from "../lib/reduxActions/actions"
+import {loadCitiesByNameRequest,
+    pushCityToMonitored,
+    deleteCityFromMonitored
+} from "../lib/reduxActions/actions"
 import {handleActions} from 'redux-actions'
-import {combineReducers} from "redux"
+import {combineReducers} from "redux-immutable"
+import {fromJS, Set} from "immutable"
 
-
-const paginationReducer = handleActions(
+const foundByActualSearchRequestCitiesPagination = handleActions(
     {
-        [fetchWeatherForCityByName]: (state, {payload: {cityName, data}}) => {
-            //     console.log("УЗнаем погоду города по имени");
+        [loadCitiesByNameRequest]: (state, {payload, payload: {result}}) => {
 
-            return state
+            return fromJS(result)
+        },
+    },
+    fromJS([])
+);
+const monitoredCitiesPagination = handleActions(
+    {
+        [pushCityToMonitored]: (state, {payload}) => {
+            return state.add(payload)
+        },
+        [deleteCityFromMonitored]: (state, {payload}) => {
+            return state.delete(payload)
         }
     },
-    {}
+    Set()
 );
 
-const entities = (state = {}, {payload = {}}) => {
-    const entities = payload && payload.entities;
-    console.log(state);
-    if (entities) {
-        const newStore = {...state, cities: {...state.cities, ...entities.cities}    }
+const paginationReducer = combineReducers({
+        foundByActualSearchRequestCitiesPagination,
+        monitoredCitiesPagination,
+    }
+);
 
-        console.log(newStore);
+
+const entities = (state = fromJS({}), {payload = {}}) => {
+    const entities = payload && payload.entities;
+    //  console.log(state);
+    if (entities) {
+        const newStore = state.mergeDeep(fromJS(entities));
+
+        //  console.log(newStore);
         return newStore;
     }
     return state;

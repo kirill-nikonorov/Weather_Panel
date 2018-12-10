@@ -1,9 +1,9 @@
 const webpack = require('webpack');
 let path = require("path");
 
-module.exports ={
+module.exports = {
     entry: {
-        client: ['./src/index.js']
+        client: ['webpack-hot-middleware/client', './src/index.js']
     },
 
     output: {
@@ -13,7 +13,8 @@ module.exports ={
     },
 
     plugins: [
-        new webpack.NamedModulesPlugin()
+        new webpack.NamedModulesPlugin(),
+        new webpack.HotModuleReplacementPlugin(),
     ],
     devServer: {
         contentBase: './public',

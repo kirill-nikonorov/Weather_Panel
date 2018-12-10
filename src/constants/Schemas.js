@@ -1,7 +1,8 @@
 import {schema} from "normalizr"
 
-const citySchema = new schema.Entity('cities');
+const citySchema = new schema.Entity('cities')
 
 export const Schemas = {
-    CITY: citySchema
+    CITY: citySchema,
+    CITIES: [citySchema]
 };
