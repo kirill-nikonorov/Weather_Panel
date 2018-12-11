@@ -7,12 +7,15 @@ import {
     removeCityFromMonitored,
     loadWeatherByCityId,
     turnOnForecastObserver,
-    loadWeatherForSeveralCitiesByIds
+    loadWeatherForSeveralCitiesByIds,
+    refreshForecastForCitiesIfNeeded
 
 } from "../actions"
 import {Search, CityWeatherCard, CityWeatherWidget, Rubish} from '../components'
-import {fromJS} from 'immutable'
+import {fromJS, toJS, Map, isCollection} from 'immutable'
 import DevTools from './DevTools';
+import {copyAccordingToEtalonObjectConcrete} from "../utils"
+import {converseTypeAccordingToEtalonObjectConcrete} from "../utils"
 
 class Table extends React.Component {
     constructor(props) {
@@ -75,9 +78,13 @@ class Table extends React.Component {
         }, "");
 
 
+        //idont()
+        //copyAccordingToEtalonObjectConcrete()
+        converseTypeAccordingToEtalonObjectConcrete();
+
         return (
             <div>
-                <div style={{border: '1px solid red'}}>
+                {/*<div style={{border: '1px solid red'}}>
                     <Search onSearch={this.handleCitySearchByName}
                             placeholder="input city name"
                     />
@@ -112,18 +119,20 @@ class Table extends React.Component {
                 <div>
                     {this.renderCities(CityWeatherWidget, monitoredCities)}
                 </div>
-                <DevTools/>
+                <DevTools/>*/}
             </div>
 
         );
     }
 
     componentDidMount() {
-        const {turnOnForecastObserver} = this.props;
-        turnOnForecastObserver();
+        //  const {turnOnForecastObserver, monitoredCities, refreshForecastForCitiesIfNeeded} = this.props;
+        //  refreshForecastForCitiesIfNeeded(monitoredCities.toJS());
+        //  turnOnForecastObserver();
 
     }
 }
+
 
 const mapStateToProps = (state) => {
 
@@ -145,7 +154,8 @@ export default connect(mapStateToProps,
         removeCityFromMonitored,
         loadWeatherByCityId,
         turnOnForecastObserver,
-        loadWeatherForSeveralCitiesByIds
+        loadWeatherForSeveralCitiesByIds,
+        refreshForecastForCitiesIfNeeded
     }
 )(Table);
 

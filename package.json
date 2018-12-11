@@ -11,7 +11,7 @@
     "antd": "^3.6.1",
     "axios": "^0.18.0",
     "humps": "^2.0.1",
-    "immutable": "^3.8.2",
+    "immutable": "^4.0.0-rc.12",
     "normalizr": "^3.2.4",
     "path": "^0.12.7",
     "prop-types": "^15.6.1",
