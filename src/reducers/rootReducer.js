@@ -1,10 +1,15 @@
-import {loadCitiesByNameRequest,
+import {
+    loadCitiesByNameRequest,
     pushCityToMonitored,
     deleteCityFromMonitored
 } from "../lib/reduxActions/actions"
 import {handleActions} from 'redux-actions'
 import {combineReducers} from "redux-immutable"
-import {fromJS, Set} from "immutable"
+import {fromJS, Set, isImmutable} from "immutable"
+import * as immutable from "immutable"
+
+//console.log(immutable)
+
 
 const foundByActualSearchRequestCitiesPagination = handleActions(
     {

@@ -7,12 +7,14 @@ import {
     removeCityFromMonitored,
     loadWeatherByCityId,
     turnOnForecastObserver,
-    loadWeatherForSeveralCitiesByIds
+    loadWeatherForSeveralCitiesByIds,
+    refreshForecastForCitiesIfNeeded
 
 } from "../actions"
 import {Search, CityWeatherCard, CityWeatherWidget, Rubish} from '../components'
-import {fromJS} from 'immutable'
+import {fromJS, toJS, Map, isCollection} from 'immutable'
 import DevTools from './DevTools';
+import {converseObjectChildTypesAccordingToEtalonObjectConcrete} from "../utils"
 
 class Table extends React.Component {
     constructor(props) {
@@ -74,7 +76,6 @@ class Table extends React.Component {
             return namesString + cityData.get('name')
         }, "");
 
-
         return (
             <div>
                 <div style={{border: '1px solid red'}}>
@@ -119,11 +120,13 @@ class Table extends React.Component {
     }
 
     componentDidMount() {
-        const {turnOnForecastObserver} = this.props;
+        const {turnOnForecastObserver, monitoredCities, refreshForecastForCitiesIfNeeded} = this.props;
+        refreshForecastForCitiesIfNeeded(monitoredCities.toJS());
         turnOnForecastObserver();
 
     }
 }
+
 
 const mapStateToProps = (state) => {
 
@@ -145,7 +148,8 @@ export default connect(mapStateToProps,
         removeCityFromMonitored,
         loadWeatherByCityId,
         turnOnForecastObserver,
-        loadWeatherForSeveralCitiesByIds
+        loadWeatherForSeveralCitiesByIds,
+        refreshForecastForCitiesIfNeeded
     }
 )(Table);
 

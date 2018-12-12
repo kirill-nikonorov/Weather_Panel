@@ -1,5 +1,5 @@
 import axios from "axios"
-import {BASE_URL, API_KEY} from "../constants/api";
+import {BASE_URL, API_KEY} from "../constants/Api";
 import {normalize} from 'normalizr'
 
 const adjustUrl = (endpoint, queryParams) => {
