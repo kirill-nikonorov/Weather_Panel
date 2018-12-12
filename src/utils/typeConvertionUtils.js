@@ -1,7 +1,9 @@
-import {fromJS, Iterable, is} from "immutable"
+import {fromJS, Iterable, Set, Map, isImmutable} from "immutable"
+import * as immutable from "immutable"
 import {structurePathsWithTypesConverters} from "../constants/StoreStructure"
 import {TYPE_STRUCTURE_OF_STORE_FOR_FROMJS_CONVERSION} from "../constants/StoreStructure"
 
+console.log("immutable = ", immutable);
 const {isKeyed} = Iterable;
 
 const areArraysEqual = (arr1, arr2) => {
@@ -17,6 +19,8 @@ const reviver = (key, value, path) => {
         }
     });
 
+   // console.log(path);
+
     if (finalType) return finalType;
     else return isKeyed(value) ? value.toMap() : value.toList()
 };
@@ -30,79 +34,133 @@ export const convertStateToImmutableAccordingToNeededStructure = (obj) => {
 
 
 export const TYPE_CONVERSION_FUNCTIONS = {
-    toSet: (col) => col.toSet()
+    toSet: (col) => Set(col)
 };
 
 const {toSet} = TYPE_CONVERSION_FUNCTIONS;
 
-export const etalon = {
 
-    arr: {2: toSet, 0: toSet}
-};
+/*let origin = {
+    arr: [{"arrObj01": "value01", "arrObj02": "value02"},
+        {"arrObj11": "value11", "arrObj12": "value12"},
+        {"arrObj21": "value20", "arrObj22": "value22"}],
+};*/
 
-let origin = fromJS({
+
+/*let origin = {
     pagination: {monitoredCitiesPagination: ['a', "b"]},
     arr: [{"arrObj01": "value01", "arrObj02": "value02"},
         {"arrObj11": "value11", "arrObj12": "value12"},
         {"arrObj21": "value20", "arrObj22": "value22"}],
     entities: {users: {kirill: "nikonorov"}, cities: {volosov: "Oleg", kemer: "NOY"}},
+};*/
+let originWithSet = {
+    pagination: {monitoredCitiesPagination: Set(['a', "b"])},
+    arr: [{"arrObj01": "value01", "arrObj02": "value02"},
+        {"arrObj11": "value11", "arrObj12": "value12"},
+        {"arrObj21": "value20", "arrObj22": "value22"}],
+    entities: {users: {kirill: "nikonorov"}, cities: {volosov: "Oleg", kemer: "NOY"}},
+};
 
-});
 
-const converseIdenticalKeys = (map, obj, parentKeyName) => {
+const {isSet} = Set;
 
-    if (typeof obj === "function") {
-        console.log("Найденна функция ");
+const matchConstructor = (obj) => {
+    if (isSet(obj)) return (obj) => Set(obj);
+    return (obj) => fromJS(obj)
+};
 
-        console.log("parentKeyName = ", parentKeyName);
-        console.log("obj = ", obj);
-        console.log("keys = ", keys);
 
-        return obj(map)
+class EtalonWrapper {
+    constructor(etalonObj) {
+        this.etalonObj = etalonObj;
+        this.isImmutable = isImmutable(etalonObj)
     }
-    const keys = obj && Object.keys(obj);
+
+    keys() {
+        const {etalonObj, isImmutable} = this;
+        if (isImmutable) return [...etalonObj.keys()];
+        return Object.keys(etalonObj)
+    }
+
+    get(key) {
+        const {etalonObj, isImmutable} = this;
+        if (isImmutable) return etalonObj.get(key);
+        return etalonObj[key]
+    }
+
+
+    changeTypeToEtalonTypeIfNeeded(obj) {
+        return matchConstructor(this.etalonObj)(obj)
+    }
+}
+
+export const etalon = {
+    1: {arrObj02: Set()}
+};
+
+let origin = [
+    {arr01: ["value01", "value02"]}, {arrObj02: ["value11", {hidden: ['a', 'b']}]}
+];
+
+
+const converseIdenticalKeys = (obj, etalon, parentKeyName) => {
+
+    const etalonWrapper = new EtalonWrapper(etalon);
+
+    const keys = etalon && etalonWrapper.keys();
 
     console.log("parentKeyName = ", parentKeyName);
-    console.log("obj = ", obj);
+    console.log("etalon = ", etalon);
     console.log("keys = ", keys);
 
     if (!keys || keys.length === 0) {
-        console.log("выход за неимением ключей , возврат map = ", map);
+        console.log("выход за неимением ключей , возврат obj = ", fromJS(obj));
         console.log("-----------");
 
-        return fromJS(map);
+        return etalonWrapper.changeTypeToEtalonTypeIfNeeded(obj);
     }
 
-    /*    map = map.filter((v, key) => {
-            console.log("FILTER , Key = ", key);
-            return keys.includes(`${key}`)
-        });*/
 
+    Object.keys(obj).forEach((key) => {
+        const value = obj[key];
+        console.log("----------- , key = ", key, " value = ", value);
 
-    map.forEach((value, key) => {
-        console.log("----------- , key = ", key, " value = ", value)
-
-        const conversedResult = converseIdenticalKeys(value, obj[key], key);
+        const conversedResult = converseIdenticalKeys(value, etalonWrapper.get(key), key);
         console.log("conversedResult = ", conversedResult);
 
-        map = map.setIn([key], conversedResult);
+        obj[key] = conversedResult;
 
-        console.log("Итог внедрения, map = ", map)
+        console.log("Итог внедрения, obj = ", obj)
     });
 
     console.log("-----------");
 
-    return map;
+    return etalonWrapper.changeTypeToEtalonTypeIfNeeded(obj);
 };
 
-export const converseTypeAccordingToEtalonObject = (map, etalon) => {
-    let mutableMap = map.asMutable();
-    return converseIdenticalKeys(mutableMap, etalon).asImmutable()
+export const converseObjectTypeAccordingToEtalonObject = (obj, etalon) => {
+    return fromJS(converseIdenticalKeys(obj, etalon))
 };
-export const converseTypeAccordingToEtalonObjectConcrete = () => {
-    // let map = Map();
-    let map = origin;
-    map = origin.asMutable();
-    map = converseTypeAccordingToEtalonObject(map, etalon)
-    console.log(map);
+
+
+export const converseObjectChildTypesAccordingToEtalonObjectConcrete = () => {
+    /*        const set = Set([1, 2, 3]);
+        console.log(...set.keys());
+
+             set.keys().forEach((key) => {
+                 console.log(key)
+             });
+    */
+
+
+    //const wrapper = new EtalonWrapper(Set([5, 3, 4,]));
+    //console.log(wrapper);
+    //console.log(wrapper.keys());
+
+    //console.log(wrapper.changeTypeToEtalonTypeIfNeeded(origin));
+
+
+    origin = converseObjectTypeAccordingToEtalonObject(origin, etalon)
+    console.log(origin);
 };

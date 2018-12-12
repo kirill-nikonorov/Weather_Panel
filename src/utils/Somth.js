@@ -13,7 +13,7 @@ const extractValueFromCollectionByPath = (sequenceOfKeys, collectable) => {
 };
 
 const addressesOfAllElementsToCopy = [['ent'], ['ent', 'cities'], ['ent', 'cities', 'volosov']]
-console.log(addressesOfAllElementsToCopy);
+//console.log(addressesOfAllElementsToCopy);
 
 const origin = fromJS({
     pagin: {users: {kir: 'a'}},
