@@ -35,7 +35,7 @@ const fetchWeatherForSeveralCitiesByIds = (ids) => ({
     [CALL_API]: {
         endpoint: "group",
         queryParams: {
-            id : ids
+            id: ids
         },
         type: weatherForSeveralCitiesByIdsRequest,
         schema: Schemas.CITIES,

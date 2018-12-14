@@ -1,31 +1,27 @@
 import React from "react"
-import styled from 'styled-components'
-
+import {Search} from "./"
 import {Input} from 'antd';
 
-const AntSearch = Input.Search;
 
-
-class Search extends React.Component {
+class SearchPanel extends React.Component {
     constructor(props) {
         super(props);
     }
 
     render() {
-
-        const {onSearch, placeholder} = this.props;
+        const {onSearch, placeholder, foundCities} = this.props;
         return (
             <div>
-                <AntSearch
+                <Search
                     placeholder={placeholder}
-
                     onSearch={onSearch}
-                    enterButton
-                    size="large"
                 />
+                <div>
+                    {foundCities}
+                </div>
             </div>
         )
     }
 }
 
-export default Search;
+export default SearchPanel;

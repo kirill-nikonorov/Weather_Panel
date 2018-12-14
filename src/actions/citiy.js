@@ -12,8 +12,6 @@ const fetchCitiesByName = (cityName) => ({
             type: 'like',
             sort: 'population',
             cnt: '30',
-            units: 'imperial'
-
         },
         type: loadCitiesByNameRequest,
         schema: Schemas.CITIES,

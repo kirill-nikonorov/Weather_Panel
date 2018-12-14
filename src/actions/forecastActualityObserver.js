@@ -15,7 +15,6 @@ export const turnOnForecastObserver = () => (dispatch, getState) => {
     console.log("Observer enabled ");
 
     setInterval(() => {
-        console.log("aaaa");
         const {
             pagination: {monitoredCitiesPagination, foundByActualSearchRequestCitiesPagination},
             entities: {cities}

@@ -3,7 +3,7 @@ let path = require("path");
 
 module.exports = {
     entry: {
-        client: ['webpack-hot-middleware/client', './src/index.js']
+        client: [ './src/index.js']
     },
 
     output: {
@@ -13,8 +13,7 @@ module.exports = {
     },
 
     plugins: [
-        new webpack.NamedModulesPlugin(),
-        new webpack.HotModuleReplacementPlugin(),
+        new webpack.NamedModulesPlugin()
     ],
     devServer: {
         contentBase: './public',

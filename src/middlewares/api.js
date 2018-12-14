@@ -46,7 +46,7 @@ const apiMiddleware = () => next => action => {
     axios(axiosConfig)
         .then((response) => {
             const {data} = response;
-         //   console.log(response);
+          //  console.log(data);
             //  console.log("data from response = ", data);
             const dataForNormalizing = extractDataForNormalizingFromResponseData(data);
 

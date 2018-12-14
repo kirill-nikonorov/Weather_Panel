@@ -5,6 +5,7 @@ import {Input} from 'antd';
 const Search = Input.Search;
 
 
+
 class CityCard extends React.Component {
     constructor(props) {
         super(props);

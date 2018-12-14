@@ -37,15 +37,25 @@ const paginationReducer = combineReducers({
         monitoredCitiesPagination,
     }
 );
+const replaceWeatherListMixedByMergingDataWithNewData = (newStore, newEntities, result) => {
+    const idsOfNew = (typeof result === "number") ? [result] : result;
+    newStore = newStore.withMutations(newStore => {
+        idsOfNew.forEach((id) => {
+            const idStr = `${id}`;
 
+            const newWeather = newEntities.get('cities').get(idStr).get('weather');
+            newStore.setIn(['cities', idStr, "weather"], newWeather);
+        });
+    });
 
-const entities = (state = fromJS({}), {payload = {}}) => {
-    const entities = payload && payload.entities;
-    //  console.log(state);
+    return newStore;
+};
+
+const entities = (state = fromJS({}), {payload: {entities, result} = {}}) => {
     if (entities) {
-        const newStore = state.mergeDeep(fromJS(entities));
-
-        //  console.log(newStore);
+        const newEntities = fromJS(entities);
+        let newStore = state.mergeDeep(newEntities);
+        newStore = replaceWeatherListMixedByMergingDataWithNewData(newStore, newEntities, result)
         return newStore;
     }
     return state;
