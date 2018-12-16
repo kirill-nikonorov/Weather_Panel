@@ -14,10 +14,11 @@ const BaselineAlignedImage = styled.img`
 `;
 
 const CityWeatherCardContainer = styled.div`
-        display: flex;
-        align-items:center;
+     display: flex;
+     align-items:center;
      min-height: 70px;
      border: 1px solid black;
+     border-radius: 10px ;
      background-color: white;
      padding: 5px;
     `;

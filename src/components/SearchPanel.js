@@ -1,6 +1,13 @@
 import React from "react"
-import {Search} from "./"
-import {Input, Icon, Button} from 'antd';
+import {Search} from "./";
+import {Button} from 'antd';
+import styled from "styled-components"
+
+const SearchPanelContainer = styled.div`
+
+         border-bottom: 3px solid #984040;
+
+`;
 
 
 class SearchPanel extends React.Component {
@@ -20,7 +27,7 @@ class SearchPanel extends React.Component {
         const {onSearch, placeholder, foundCities} = this.props;
         const isSearchSuccess = foundCities.length > 0;
         return (
-            <div>
+            <SearchPanelContainer>
                 <Search
                     placeholder={placeholder}
                     onSearch={onSearch}
@@ -29,7 +36,8 @@ class SearchPanel extends React.Component {
                 <div>
                     {foundCities}
                 </div>
-            </div>
+
+            </SearchPanelContainer>
         )
     }
 }

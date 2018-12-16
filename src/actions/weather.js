@@ -1,4 +1,5 @@
 import {CALL_API} from "../middlewares/api"
+
 import {
     weatherForCityByNameRequest,
     weatherForCityByIdRequest,
@@ -7,7 +8,7 @@ import {
 import {Schemas} from "../constants/Schemas";
 import {WEATHER_ENDPOINT, GROUP} from "../constants/Api";
 
-const fetchWeatherByCityName = (cityName) => ({
+export const fetchWeatherByCityName = (cityName) => ({
     [CALL_API]: {
         endpoint: WEATHER_ENDPOINT,
         queryParams: {
@@ -19,7 +20,7 @@ const fetchWeatherByCityName = (cityName) => ({
     },
     cityName
 });
-const fetchWeatherByCityId = (id) => ({
+export const fetchWeatherByCityId = (id) => ({
     [CALL_API]: {
         endpoint: WEATHER_ENDPOINT,
         queryParams: {
@@ -32,7 +33,7 @@ const fetchWeatherByCityId = (id) => ({
     id
 });
 
-const fetchWeatherForSeveralCitiesByIds = (ids) => ({
+export const fetchWeatherForSeveralCitiesByIds = (ids) => ({
     [CALL_API]: {
         endpoint: GROUP,
         queryParams: {
@@ -44,13 +45,4 @@ const fetchWeatherForSeveralCitiesByIds = (ids) => ({
     }
 });
 
-export const loadWeatherByCityName = (cityName) => {
-    return (fetchWeatherByCityName(cityName));
-};
-export const loadWeatherByCityId = (id) => {
-    return (fetchWeatherByCityId(id));
-};
-export const loadWeatherForSeveralCitiesByIds = (ids) => {
-    return (fetchWeatherForSeveralCitiesByIds(ids.join()));
-};
 
