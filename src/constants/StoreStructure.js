@@ -3,6 +3,7 @@ const {toSet} = TYPE_CONVERSION_FUNCTIONS;
 
 const STRUCTURE_PATHS_WITH_TYPES_CONVERTERS = new Map();
 STRUCTURE_PATHS_WITH_TYPES_CONVERTERS.set(['pagination', "monitoredCitiesPagination"], toSet);
+STRUCTURE_PATHS_WITH_TYPES_CONVERTERS.set(['pagination', "foundByActualSearchRequestCitiesPagination"], toSet);
 
 
 

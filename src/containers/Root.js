@@ -6,15 +6,21 @@ import {
     addCityToMonitored,
     removeCityFromMonitored,
     loadWeatherByCityId,
-    turnOnForecastObserver,
+    turnOnStoreForecastActualityObserver,
     loadWeatherForSeveralCitiesByIds,
-    refreshForecastForCitiesIfNeeded
+    refreshForecastForCitiesIfNeeded,
+    turnOffStoreForecastActualityObserver,
+    insertAndMonitorCities
 } from "../actions"
+import {
+    cleanSearchResults
+} from '../lib/reduxActions/actions'
 import {SearchPanel, CityWeatherCard, CityWeatherWidget, Rubish} from '../components'
 import {fromJS, toJS, Map, isCollection} from 'immutable'
 import DevTools from './DevTools';
 import styled from 'styled-components'
 import {converseObjectChildTypesAccordingToEtalonObjectConcrete} from "../utils"
+import {showInfoNotificationWithButton} from "../service"
 
 
 const AppContainer = styled.div`
@@ -40,37 +46,44 @@ class Table extends React.Component {
 
     };
 
-    toggleMonitoring = (id, isMonitored) => {
+    toggleMonitoring = (city, isMonitored, doToggleOffMonitoredWithNotification) => {
         const {
             addCityToMonitored,
-            removeCityFromMonitored
+            removeCityFromMonitored,
+            insertCities
         } = this.props;
+        const {id, name} = city;
 
-        if (isMonitored) removeCityFromMonitored(id)
+        const toggleOf = doToggleOffMonitoredWithNotification ? (id) => {
+            removeCityFromMonitored(id);
+            showInfoNotificationWithButton(`Вы удалили ${name} из отслеживаемых ю Вернуть ?`, () => {
+                insertCities([city])
+            })
+        } : removeCityFromMonitored;
+
+        if (isMonitored) toggleOf(id);
         else addCityToMonitored(id)
     };
 
-    renderCities = (Component, cities) => {
+    renderCities = (Component, cities, doToggleOffMonitoredWithNotification) => {
         const {monitoredCitiesPagination, addCityToMonitored, removeCityFromMonitored} = this.props;
+
         const citiesCards = Object.values(cities.toJS()).reduce((citiesCardsArr, city) => {
                 const {id} = city;
                 const isMonitored = monitoredCitiesPagination.has(id);
 
-
                 citiesCardsArr.push(
                     <Component
-                        toggleMonitoring={() => this.toggleMonitoring(id, isMonitored)}
+                        toggleMonitoring={() => this.toggleMonitoring(city, isMonitored, doToggleOffMonitoredWithNotification)}
                         isMonitored={isMonitored}
                         key={id} city={city}/>);
                 return citiesCardsArr;
             }, []
         );
 
-        return (
-            <div>
-                {citiesCards}
-            </div>
-        )
+        return citiesCards
+
+
     };
 
     render() {
@@ -82,7 +95,8 @@ class Table extends React.Component {
             loadWeatherByCityName,
             loadCitiesByName,
             loadWeatherByCityId,
-            loadWeatherForSeveralCitiesByIds
+            loadWeatherForSeveralCitiesByIds,
+            cleanSearchResults
         } = this.props;
         const citiesNames = cities && cities.reduce((namesString, cityData) => {
             return namesString + cityData.get('name')
@@ -92,15 +106,11 @@ class Table extends React.Component {
 
         return (
             <AppContainer>
-                <div style={{border: '1px solid red'}}>
-                    <SearchPanel onSearch={this.handleCitySearchByName}
-                                 placeholder="input city name"
-                                 foundCities={renderedFoundCities}
-                    />
-
-                </div>
-
-
+                <SearchPanel onSearch={this.handleCitySearchByName}
+                             placeholder="input city name"
+                             foundCities={renderedFoundCities}
+                             cleanSearchResults={cleanSearchResults}
+                />
                 <div
                     onClick={() => {
                         loadCitiesByName("volosovo")
@@ -122,7 +132,7 @@ class Table extends React.Component {
                     style={{width: '130px', height: '25px', backgroundColor: 'yellow'}}>store
                 </div>
                 <div>
-                    {this.renderCities(CityWeatherCard, monitoredCities)}
+                    {this.renderCities(CityWeatherCard, monitoredCities, true)}
                 </div>
                 <DevTools/>
             </AppContainer>
@@ -132,9 +142,13 @@ class Table extends React.Component {
 
     componentDidMount() {
         const {turnOnForecastObserver, monitoredCities, refreshForecastForCitiesIfNeeded} = this.props;
-        refreshForecastForCitiesIfNeeded(monitoredCities.toJS());
+        refreshForecastForCitiesIfNeeded(monitoredCities);
         turnOnForecastObserver();
 
+    }
+
+    componentWillUnMount() {
+        turnOffStoreForecastActualityObserver();
     }
 }
 
@@ -158,9 +172,11 @@ export default connect(mapStateToProps,
         addCityToMonitored,
         removeCityFromMonitored,
         loadWeatherByCityId,
-        turnOnForecastObserver,
+        turnOnForecastObserver: turnOnStoreForecastActualityObserver,
         loadWeatherForSeveralCitiesByIds,
-        refreshForecastForCitiesIfNeeded
+        refreshForecastForCitiesIfNeeded,
+        cleanSearchResults,
+        insertCities: insertAndMonitorCities
     }
 )(Table);
 

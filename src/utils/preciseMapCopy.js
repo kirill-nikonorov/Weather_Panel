@@ -16,7 +16,7 @@ let origin = fromJS({
     entities: {users: {kirill: "nikonorov"}, cities: {volosov: "Oleg", kemer: "NOY"}}
 });
 
-const copyIdenticalKeys = (map, obj, parentKeyName) => {
+const copyOnlyCommonKeys = (map, obj) => {
     const keys = obj && Object.keys(obj);
 
     //console.log("parentKeyName = ", parentKeyName);
@@ -30,7 +30,7 @@ const copyIdenticalKeys = (map, obj, parentKeyName) => {
         return map;
     }
 
-    map = map.filter((v, key) => {
+    map = map.filter((value, key) => {
         //console.log("FILTER , Key = ", key);
         return keys.includes(`${key}`)
     });
@@ -40,7 +40,7 @@ const copyIdenticalKeys = (map, obj, parentKeyName) => {
     map.forEach((value, key) => {
         //console.log("----------- , key = ", key, " value = ", value)
 
-        const filterResult = copyIdenticalKeys(value, obj[key], key);
+        const filterResult = copyOnlyCommonKeys(value, obj[key], key);
         //console.log("filterResult = ", filterResult);
 
         map = map.setIn([key], filterResult);
@@ -53,14 +53,14 @@ const copyIdenticalKeys = (map, obj, parentKeyName) => {
     return map;
 };
 
-export const copyAccordingToEtalonObject = (map, etalon) => {
+export const copyImmutableMapAccordingToEtalonObject = (map, etalon) => {
     let mutableMap = map.asMutable();
-    return copyIdenticalKeys(mutableMap, etalon).asImmutable()
+    return copyOnlyCommonKeys(mutableMap, etalon).asImmutable()
 };
 export const copyAccordingToEtalonObjectConcrete = () => {
     // let map = Map();
     let map = origin;
     map = origin.asMutable();
-    map = copyAccordingToEtalonObject(map, PROTOTYPE_OF_PERSISTED_PART_OF_STORE)
+    map = copyImmutableMapAccordingToEtalonObject(map, PROTOTYPE_OF_PERSISTED_PART_OF_STORE)
     console.log(map);
 };

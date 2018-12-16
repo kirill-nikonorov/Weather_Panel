@@ -1,21 +1,26 @@
 import {
     loadCitiesByNameRequest,
     pushCityToMonitored,
-    deleteCityFromMonitored
+    deleteCityFromMonitored,
+    cleanSearchResults,
+    deleteCities,
+    addAndMonitorCities
 } from "../lib/reduxActions/actions"
 import {handleActions} from 'redux-actions'
 import {combineReducers} from "redux-immutable"
-import {fromJS, Set, isImmutable} from "immutable"
-import * as immutable from "immutable"
-
-//console.log(immutable)
+import {fromJS, Set, Map} from "immutable"
 
 
 const foundByActualSearchRequestCitiesPagination = handleActions(
     {
-        [loadCitiesByNameRequest]: (state, {payload, payload: {result}}) => {
+        [loadCitiesByNameRequest]: (state, {payload: {result}}) => {
 
             return fromJS(result)
+        },
+        [cleanSearchResults]: (state) => Map(),
+        [deleteCities]: (state, {payload}) => {
+            console.log(payload);
+            return state.filterNot(id => payload.includes(id))
         },
     },
     fromJS([])
@@ -27,7 +32,23 @@ const monitoredCitiesPagination = handleActions(
         },
         [deleteCityFromMonitored]: (state, {payload}) => {
             return state.delete(payload)
-        }
+        },
+        [addAndMonitorCities]: (state, {payload}) => {
+            //console.log(payload)
+            const citiesIds = payload.reduce((ids, {id}) => {
+                ids.push(id)
+                return ids;
+            }, []);
+            return state.withMutations(state => {
+                citiesIds.forEach(id => {
+                    state.add(id)
+                })
+            })
+        },
+        [deleteCities]: (state, {payload}) => {
+            console.log(payload);
+            return state.filterNot(id => payload.includes(id))
+        },
     },
     Set()
 );
@@ -51,16 +72,37 @@ const replaceWeatherListMixedByMergingDataWithNewData = (newStore, newEntities, 
     return newStore;
 };
 
-const entities = (state = fromJS({}), {payload: {entities, result} = {}}) => {
+const entities = (state = fromJS({}), action) => {
+    const {payload: {entities, result} = {}} = action;
     if (entities) {
         const newEntities = fromJS(entities);
         let newStore = state.mergeDeep(newEntities);
         newStore = replaceWeatherListMixedByMergingDataWithNewData(newStore, newEntities, result)
         return newStore;
     }
-    return state;
-
+    return entitiesReducer(state, action);
 };
+
+const entitiesReducer = handleActions(
+    {
+        [deleteCities]: (state, {payload}) => {
+            //console.log(payload);
+            const cities = state.get("cities");
+            return state.set("cities", cities.removeAll(payload))
+        },
+        [addAndMonitorCities]: (state, {payload}) => {
+            //console.log(payload);
+            const newState = state.withMutations(state => {
+                payload.forEach(city => {
+                    const {id} = city;
+                    state.setIn(["cities", `${id}`], fromJS(city))
+                });
+            });
+            return newState;
+        }
+    },
+    fromJS({})
+);
 
 const rootReducer = combineReducers({
     entities,

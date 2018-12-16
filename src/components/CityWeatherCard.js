@@ -103,8 +103,14 @@ class CityWeatherCard extends React.Component {
         toggleMonitoring();
     }
 
-
-    ;
+    renderSwitch() {
+        const {isMonitored} = this.props;
+        return (
+            <div>
+                {isMonitored? "Отслеживается":"Отслеживать ?"} <Switch checked={isMonitored} onChange={this.handleToggleMonitoring}/>
+            </div>
+        )
+    }
 
     render() {
         const {
@@ -112,9 +118,7 @@ class CityWeatherCard extends React.Component {
                 name, weather: [{description, icon}], coord,
                 main: {temp, temp_min, temp_max, pressure}, sys: {country},
                 wind: {speed}, clouds, id,
-            },
-            isMonitored
-
+            }
         } = this.props;
 
 
@@ -138,9 +142,7 @@ class CityWeatherCard extends React.Component {
                         />
                         <GeoCoordBlock coord={coord}/>
                     </div>
-                    <div>
-                      Отслеживать ? <Switch checked={isMonitored} onChange={this.handleToggleMonitoring}/>
-                    </div>
+                    {this.renderSwitch()}
                 </Block>
             </CityWeatherCardContainer>
         )

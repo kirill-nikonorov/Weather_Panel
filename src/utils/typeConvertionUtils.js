@@ -20,7 +20,7 @@ const reviver = (key, value, path) => {
     else return isKeyed(value) ? value.toMap() : value.toList()
 };
 
-export const convertStateToImmutableAccordingToNeededStructure = (obj) => {
-    return fromJS(obj, reviver)
+export const convertStateToImmutableAccordingToNeededStructure = (state) => {
+    return fromJS(state, reviver)
 };
 

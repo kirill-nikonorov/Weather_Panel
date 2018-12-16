@@ -5,10 +5,11 @@ import {
     weatherForSeveralCitiesByIdsRequest
 } from "../lib/reduxActions/actions"
 import {Schemas} from "../constants/Schemas";
+import {WEATHER_ENDPOINT, GROUP} from "../constants/Api";
 
 const fetchWeatherByCityName = (cityName) => ({
     [CALL_API]: {
-        endpoint: "weather",
+        endpoint: WEATHER_ENDPOINT,
         queryParams: {
             q: cityName,
         },
@@ -20,7 +21,7 @@ const fetchWeatherByCityName = (cityName) => ({
 });
 const fetchWeatherByCityId = (id) => ({
     [CALL_API]: {
-        endpoint: "weather",
+        endpoint: WEATHER_ENDPOINT,
         queryParams: {
             id
         },
@@ -33,7 +34,7 @@ const fetchWeatherByCityId = (id) => ({
 
 const fetchWeatherForSeveralCitiesByIds = (ids) => ({
     [CALL_API]: {
-        endpoint: "group",
+        endpoint: GROUP,
         queryParams: {
             id: ids
         },

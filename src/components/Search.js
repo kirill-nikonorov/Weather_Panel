@@ -13,7 +13,8 @@ class Search extends React.Component {
 
     render() {
 
-        const {onSearch, placeholder} = this.props;
+        const {onSearch, placeholder, addonAfter} = this.props;
+
         return (
             <div>
                 <AntSearch
@@ -22,6 +23,8 @@ class Search extends React.Component {
                     onSearch={onSearch}
                     enterButton
                     size="large"
+                    addonAfter={addonAfter}
+
                 />
             </div>
         )
