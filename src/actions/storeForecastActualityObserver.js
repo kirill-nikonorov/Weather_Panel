@@ -1,8 +1,8 @@
 import {fetchWeatherByCityId} from "./";
-import {Set} from 'immutable'
 import {deleteCities} from './citiy'
+import {fromJS} from 'immutable'
 
-const observerCheckRateInMilliSeconds = 5000;
+const observerCheckRateInMilliSeconds = 10000;
 const forecastActualityInSeconds = 600;
 
 export const refreshForecastForCitiesIfNeeded = cities => dispatch => {
@@ -18,9 +18,10 @@ export const refreshForecastForCitiesIfNeeded = cities => dispatch => {
 
 const deleteCitiesIfExpired = cities => dispatch => {
 
+    console.log("+++")
     const expireForecastCities = cities.filter(city => {
         const dt = city.get('dt');
-
+        console.log(Date.now() / 1000 - dt);
         return Date.now() / 1000 - dt > forecastActualityInSeconds;
     });
 
@@ -30,12 +31,18 @@ const deleteCitiesIfExpired = cities => dispatch => {
 };
 
 const adjustStoreForecastAccordingToActualityRequirements = (dispatch, getState) => {
-    const pagination = getState().get("pagination");
-    const monitoredCitiesPagination = pagination.get("monitoredCitiesPagination");
-    const foundByActualSearchRequestCitiesPagination = pagination.get("foundByActualSearchRequestCitiesPagination");
-    const cities = getState().get("entities").get("cities");
+    console.log("_____")
+    const state = getState();
+    const searchedName = state.get("searchedName");
+    const cities = state.get("entities").get("cities");
 
-    const monitoredCitiesIds = monitoredCitiesPagination.concat(foundByActualSearchRequestCitiesPagination);
+
+    const pagination = state.get("pagination");
+    const monitoredCitiesPagination = pagination.get("monitoredCitiesPagination");
+    const searchedCitiesByNamePagination = pagination.get("searchedCitiesByNamePagination");
+    const actuallySearchedCities = searchedCitiesByNamePagination.get(searchedName) || fromJS([]);
+
+    const monitoredCitiesIds = monitoredCitiesPagination.concat(actuallySearchedCities);
 
     const monitoredCities = monitoredCitiesIds.map(id => cities.get(`${id}`));
     const notMonitoredCities = cities.filterNot((value, id) => monitoredCitiesIds.includes(+id));
@@ -43,6 +50,8 @@ const adjustStoreForecastAccordingToActualityRequirements = (dispatch, getState)
     if (monitoredCities.size > 0) dispatch(refreshForecastForCitiesIfNeeded(monitoredCities));
 
     if (notMonitoredCities.size > 0) dispatch(deleteCitiesIfExpired(notMonitoredCities))
+    console.log("_____")
+
 };
 
 

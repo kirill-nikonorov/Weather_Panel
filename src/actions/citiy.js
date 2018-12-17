@@ -23,7 +23,7 @@ export const fetchCitiesByName = (cityName) => ({
         schema: Schemas.CITIES,
         extractDataForNormalizingFromResponseData: ({list}) => list
     },
-    cityName
+    cityName: cityName.toLowerCase()
 });
 
 

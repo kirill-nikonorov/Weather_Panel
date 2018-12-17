@@ -1,5 +1,5 @@
 import {fromJS, Iterable} from "immutable"
-import {STRUCTURE_PATHS_WITH_TYPES_CONVERTERS} from "../constants/StoreStructure"
+import {STRUCTURE_PATHS_WITH_NEEDED_TYPES_CONVERTERS} from "../constants/StoreStructure"
 
 const {isKeyed} = Iterable;
 
@@ -9,7 +9,7 @@ const areArraysEqual = (arr1, arr2) => {
 
 const reviver = (key, value, path) => {
     let finalType = undefined;
-    STRUCTURE_PATHS_WITH_TYPES_CONVERTERS.forEach((convertToType, pathNeededInTypeConversion) => {
+    STRUCTURE_PATHS_WITH_NEEDED_TYPES_CONVERTERS.forEach((convertToType, pathNeededInTypeConversion) => {
 
         if (areArraysEqual(pathNeededInTypeConversion, path)) {
             finalType = convertToType(value)

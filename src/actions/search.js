@@ -1,1 +1,3 @@
-export {cleanSearchResults} from '../lib/reduxActions/actions/search'
+export {cleanSearchedName , installSearchedName} from '../lib/reduxActions/actions/search'
+
+

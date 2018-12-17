@@ -2,28 +2,35 @@ import {
     loadCitiesByNameRequest,
     pushCityToMonitored,
     deleteCityFromMonitored,
-    cleanSearchResults,
+    cleanSearchedName,
     deleteCities,
-    addAndMonitorCities
+    addAndMonitorCities,
+    installSearchedName
 } from "../lib/reduxActions/actions"
 import {handleActions} from 'redux-actions'
 import {combineReducers} from "redux-immutable"
 import {fromJS, Set, Map} from "immutable"
 
 
-const foundByActualSearchRequestCitiesPagination = handleActions(
+const searchedCitiesByNamePagination = handleActions(
     {
-        [loadCitiesByNameRequest]: (state, {payload: {result}}) => {
-
-            return fromJS(result)
-        },
-        [cleanSearchResults]: (state) => Map(),
-        [deleteCities]: (state, {payload}) => {
-            console.log(payload);
-            return state.filterNot(id => payload.includes(id))
-        },
+        [loadCitiesByNameRequest]: (state, {payload: {cityName, result}}) => {
+            return state.set(cityName, Set(result))
+        }
     },
-    fromJS([])
+    fromJS({})
+);
+
+const searchedName = handleActions(
+    {
+        [installSearchedName]: (state, {payload}) => {
+            return payload;
+        },
+        [cleanSearchedName]: () => {
+            return '';
+        }
+    },
+    ""
 );
 const monitoredCitiesPagination = handleActions(
     {
@@ -54,8 +61,8 @@ const monitoredCitiesPagination = handleActions(
 );
 
 const paginationReducer = combineReducers({
-        foundByActualSearchRequestCitiesPagination,
         monitoredCitiesPagination,
+        searchedCitiesByNamePagination
     }
 );
 const replaceWeatherListMixedByMergingDataWithNewData = (newStore, newEntities, result) => {
@@ -74,6 +81,7 @@ const replaceWeatherListMixedByMergingDataWithNewData = (newStore, newEntities, 
 
 const entities = (state = fromJS({}), action) => {
     const {payload: {entities, result} = {}} = action;
+
     if (entities) {
         const newEntities = fromJS(entities);
         let newStore = state.mergeDeep(newEntities);
@@ -106,7 +114,8 @@ const entitiesReducer = handleActions(
 
 const rootReducer = combineReducers({
     entities,
-    pagination: paginationReducer
+    pagination: paginationReducer,
+    searchedName
 });
 
 export default rootReducer;

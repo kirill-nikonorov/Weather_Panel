@@ -4,9 +4,7 @@ import {Button} from 'antd';
 import styled from "styled-components"
 
 const SearchPanelContainer = styled.div`
-
          border-bottom: 3px solid #984040;
-
 `;
 
 
@@ -16,8 +14,8 @@ class SearchPanel extends React.Component {
     }
 
     renderCleanSearchButton = () => {
-        const {cleanSearchResults} = this.props;
-        return <Button onClick={() => cleanSearchResults()}
+        const {cleanSearchedName} = this.props;
+        return <Button onClick={() => cleanSearchedName()}
                        icon="close"
                        type="danger"/>
     };

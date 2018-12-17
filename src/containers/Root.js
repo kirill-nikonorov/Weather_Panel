@@ -7,15 +7,15 @@ import {
     deleteCityFromMonitored,
     fetchWeatherByCityId,
     turnOnStoreForecastActualityObserver,
-    fetchWeatherForSeveralCitiesByIds,
     refreshForecastForCitiesIfNeeded,
     turnOffStoreForecastActualityObserver,
     addAndMonitorCities,
-    cleanSearchResults
+    cleanSearchedName,
+    installSearchedName
 } from "../actions"
 
 import {SearchPanel, CityWeatherCard, CityWeatherWidget, Rubish} from '../components'
-import {fromJS, toJS, Map, isCollection} from 'immutable'
+import {fromJS, toJS, Map, Set, is} from 'immutable'
 import DevTools from './DevTools';
 import styled from 'styled-components'
 import {converseObjectChildTypesAccordingToEtalonObjectConcrete} from "../utils"
@@ -36,13 +36,9 @@ class Table extends React.Component {
         super(props);
     }
 
-    handleCitySearchByName = (value) => {
-        const {fetchCitiesByName} = this.props;
-
-        if (value.length < 1) return;
-        // console.log(value);
-        fetchCitiesByName(value);
-
+    handleCitySearchByName = (name) => {
+        const {installSearchedName} = this.props;
+        installSearchedName(name);
     };
 
     toggleMonitoring = (city, isMonitored, doToggleOffMonitoredWithNotification) => {
@@ -67,7 +63,11 @@ class Table extends React.Component {
     renderCities = (Component, cities, doToggleOffMonitoredWithNotification) => {
         const {monitoredCitiesPagination} = this.props;
 
+       // console.log(cities);
+       // console.log(Object.values(cities.toJS()));
+
         const citiesCards = Object.values(cities.toJS()).reduce((citiesCardsArr, city) => {
+
                 const {id} = city;
                 const isMonitored = monitoredCitiesPagination.has(id);
 
@@ -87,17 +87,14 @@ class Table extends React.Component {
 
     render() {
         const {
-            cities,
             state,
-            foundCities,
             monitoredCities,
-            fetchCitiesByName,
             fetchWeatherByCityId,
-            cleanSearchResults
+            cleanSearchedName,
+            foundCities,
+            installSearchedName
         } = this.props;
-        const citiesNames = cities && cities.reduce((namesString, cityData) => {
-            return namesString + cityData.get('name')
-        }, "");
+
 
         const renderedFoundCities = this.renderCities(CityWeatherCard, foundCities);
 
@@ -106,11 +103,11 @@ class Table extends React.Component {
                 <SearchPanel onSearch={this.handleCitySearchByName}
                              placeholder="input city name"
                              foundCities={renderedFoundCities}
-                             cleanSearchResults={cleanSearchResults}
+                             cleanSearchedName={cleanSearchedName}
                 />
                 <div
                     onClick={() => {
-                        fetchCitiesByName("volosovo")
+                        installSearchedName("volosovo")
                     }}
                     style={{width: '130px', height: '25px', backgroundColor: 'green'}}> найти Волосово
                 </div>
@@ -137,6 +134,24 @@ class Table extends React.Component {
         );
     }
 
+    componentDidUpdate() {
+        const {searchedCitiesByNamePagination, searchedName, fetchCitiesByName, cities} = this.props;
+
+        const searchedCitiesIds = searchedCitiesByNamePagination.get(searchedName);
+        if (searchedCitiesIds) this.ensureForecastExistenceForEveryCityId(searchedCitiesIds);
+        else if (searchedName) fetchCitiesByName(searchedName);
+    };
+
+    ensureForecastExistenceForEveryCityId(searchedCitiesIds) {
+        const {cities, fetchWeatherByCityId} = this.props;
+
+        searchedCitiesIds.forEach(id => {
+                const city = cities.get(`${id}`);
+                if (!city) fetchWeatherByCityId(id);
+            }
+        )
+    }
+
     componentDidMount() {
         const {turnOnStoreForecastActualityObserver, monitoredCities, refreshForecastForCitiesIfNeeded} = this.props;
         refreshForecastForCitiesIfNeeded(monitoredCities);
@@ -147,19 +162,52 @@ class Table extends React.Component {
     componentWillUnMount() {
         turnOffStoreForecastActualityObserver();
     }
+
+    shouldComponentUpdate(nextState) {
+        /*  const monitoredChangeableKeys = ["cities", 'foundCities',
+              "monitoredCities", "monitoredCitiesPagination"];
+
+          const should = monitoredChangeableKeys.some((name) => {
+              const changed = !is(nextState[name], this.props[name])
+              console.log("changed name= ", name, nextState[name], this.props[name]);
+              return changed;
+          });
+
+          /!*        const {cities: nextCities, foundCities: nextFoundCities} = nextState;
+                  const {cities} = this.props;*!/
+
+          console.log("ОБновелине Root = ", nextState);
+          //   console.log("nextCities = ", nextCities);
+          console.log("should = ", should);
+          console.log("____________________");
+
+          // const shoulda = !cities.equals(nextCities);*/
+        return true;
+    }
 }
 
 
 const mapStateToProps = (state) => {
 
     const cities = state.get('entities').get('cities') || fromJS({});
-    const foundCitiesPagination = state.get('pagination').get('foundByActualSearchRequestCitiesPagination') || fromJS([]);
+    const pagination = state.get('pagination');
     const monitoredCitiesPagination = state.get('pagination').get('monitoredCitiesPagination') || fromJS([]);
-    const foundCities = foundCitiesPagination.map(id => cities.get(`${id}`))
-    const monitoredCities = monitoredCitiesPagination.map(id => cities.get(`${id}`))
+    const monitoredCities = Set([...cities.filter(city => monitoredCitiesPagination.has(city.get(`id`))).values()]);
 
-    //console.log("foundCities = ", foundCities);
-    return {cities, foundCities, monitoredCities, state, monitoredCitiesPagination};
+    const searchedName = state.get('searchedName');
+    const searchedCitiesByNamePagination = pagination.get('searchedCitiesByNamePagination');
+    const foundCitiesIds = searchedCitiesByNamePagination.get(searchedName) || Set([]);
+    const foundCities = Set([...cities.filter(city => foundCitiesIds.has(city.get(`id`))).values()]);
+
+    return {
+        cities,
+        foundCities,
+        monitoredCities,
+        monitoredCitiesPagination,
+        searchedCitiesByNamePagination,
+        searchedName,
+        state
+    };
 };
 
 export default connect(mapStateToProps,
@@ -168,11 +216,11 @@ export default connect(mapStateToProps,
         fetchCitiesByName,
         pushCityToMonitored,
         deleteCityFromMonitored,
-        fetchWeatherByCityId,
         turnOnStoreForecastActualityObserver,
-        fetchWeatherForSeveralCitiesByIds,
+        fetchWeatherByCityId,
         refreshForecastForCitiesIfNeeded,
-        cleanSearchResults,
-        addAndMonitorCities
+        cleanSearchedName,
+        addAndMonitorCities,
+        installSearchedName
     }
 )(Table);

@@ -6,9 +6,11 @@ import DevTools from '../containers/DevTools'
 import persistState from 'redux-localstorage'
 import {convertStateToImmutableAccordingToNeededStructure} from "../utils";
 import {copyImmutableMapAccordingToEtalonObject} from "../utils"
-import {PROTOTYPE_OF_PERSISTED_PART_OF_STORE} from "../constants/StoreStructure"
+import {PROTOTYPE_OF_PERSISTING_PART_OF_STORE} from "../constants/StoreStructure"
 
-const initialStore = convertStateToImmutableAccordingToNeededStructure({entities: {}, pagination: {}});
+import {fromJS} from 'immutable'
+
+const initialStore = fromJS({});
 
 const config = {
     key: "weatherPanel",
@@ -27,7 +29,7 @@ const config = {
 
 const enhancer = compose(
     applyMiddleware(thunk, apiMiddleware),
-    persistState(PROTOTYPE_OF_PERSISTED_PART_OF_STORE, config),
+    persistState(PROTOTYPE_OF_PERSISTING_PART_OF_STORE, config),
     DevTools.instrument()
 );
 

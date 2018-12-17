@@ -1,5 +1,5 @@
 import {fromJS, Map} from "immutable";
-import {PROTOTYPE_OF_PERSISTED_PART_OF_STORE} from "../constants/StoreStructure"
+import {PROTOTYPE_OF_PERSISTING_PART_OF_STORE} from "../constants/StoreStructure"
 
 
 const objWithKeysNeededToBeCopied = {
@@ -61,6 +61,6 @@ export const copyAccordingToEtalonObjectConcrete = () => {
     // let map = Map();
     let map = origin;
     map = origin.asMutable();
-    map = copyImmutableMapAccordingToEtalonObject(map, PROTOTYPE_OF_PERSISTED_PART_OF_STORE)
+    map = copyImmutableMapAccordingToEtalonObject(map, PROTOTYPE_OF_PERSISTING_PART_OF_STORE)
     console.log(map);
 };

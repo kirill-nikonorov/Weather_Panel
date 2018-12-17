@@ -1,6 +1,7 @@
 export const API_KEY = "b6907d289e10d714a6e88b30761fae22";
 export const BASE_URL = "https://openweathermap.org/data/2.5";
 export const ASSETS_URL = "https://openweathermap.org";
+
 export const IMAGES_ENDPOINT = "images";
 export const SECOND_IMAGES_ENDPOINT = "img";
 export const WEATHER_MAP_ENDPOINT = "weathermap";

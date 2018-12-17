@@ -1,3 +1,10 @@
 import {createAction} from 'redux-actions';
 
-export const cleanSearchResults = createAction('CLEAN_SEARCH_RESULTS');
+export const cleanSearchedName = createAction('CLEAN_SEARCHED_NAME');
+
+
+export const installSearchedName = createAction('INSTALL_SEARCHED_NAME');
+
+
+
+
