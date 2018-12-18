@@ -1,21 +1,41 @@
 import {
     loadCitiesByNameRequest,
+    loadCitiesByNameSuccess,
     pushCityToMonitored,
     deleteCityFromMonitored,
     cleanSearchedName,
     deleteCities,
     addAndMonitorCities,
-    installSearchedName
+    installSearchedName,
+    loadCitiesByNameError
 } from "../lib/reduxActions/actions"
 import {handleActions} from 'redux-actions'
 import {combineReducers} from "redux-immutable"
 import {fromJS, Set, Map} from "immutable"
 
+const paginate = (state, {payload: {cityName, result}}) => {
+    return state.setIn([cityName, 'isFetching'], true)
+};
 
-const searchedCitiesByNamePagination = handleActions(
+const foundCitiesByNamePagination = handleActions(
     {
-        [loadCitiesByNameRequest]: (state, {payload: {cityName, result}}) => {
-            return state.set(cityName, Set(result))
+        [loadCitiesByNameRequest]: paginate,
+        [loadCitiesByNameSuccess]: (state, {payload: {cityName, result}}) => {
+            const newNameValue = fromJS({
+                isFetching: false,
+                hasMore: false,
+                ids: result
+            });
+            return state.set(cityName, newNameValue)
+        },
+        [loadCitiesByNameError]: (state, {payload: {cityName, e}}) => {
+            const newNameValue = fromJS({
+                isFetching: false,
+                hasMore: false,
+                ids: [],
+                e
+            });
+            return state.set(cityName, newNameValue)
         }
     },
     fromJS({})
@@ -62,7 +82,7 @@ const monitoredCitiesPagination = handleActions(
 
 const paginationReducer = combineReducers({
         monitoredCitiesPagination,
-        searchedCitiesByNamePagination
+        foundCitiesByNamePagination
     }
 );
 const replaceWeatherListMixedByMergingDataWithNewData = (newStore, newEntities, result) => {

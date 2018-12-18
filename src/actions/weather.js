@@ -1,38 +1,28 @@
 import {CALL_API} from "../middlewares/api"
 
 import {
-    weatherForCityByNameRequest,
     weatherForCityByIdRequest,
-    weatherForSeveralCitiesByIdsRequest
+    weatherForCityByIdSuccess
+
 } from "../lib/reduxActions/actions"
 import {Schemas} from "../constants/Schemas";
-import {WEATHER_ENDPOINT, GROUP} from "../constants/Api";
+import {WEATHER_ENDPOINT} from "../constants/Api";
 
-export const fetchWeatherByCityName = (cityName) => ({
-    [CALL_API]: {
-        endpoint: WEATHER_ENDPOINT,
-        queryParams: {
-            q: cityName,
-        },
-        type: weatherForCityByNameRequest,
-        schema: Schemas.CITY,
-        extractDataForNormalizingFromResponseData: data => data
-    },
-    cityName
-});
+
 export const fetchWeatherByCityId = (id) => ({
     [CALL_API]: {
         endpoint: WEATHER_ENDPOINT,
         queryParams: {
             id
         },
-        type: weatherForCityByIdRequest,
+        types: [weatherForCityByIdRequest, weatherForCityByIdSuccess],
         schema: Schemas.CITY,
         extractDataForNormalizingFromResponseData: data => data
     },
     id
 });
 
+/* не разрешает запрос
 export const fetchWeatherForSeveralCitiesByIds = (ids) => ({
     [CALL_API]: {
         endpoint: GROUP,
@@ -46,3 +36,4 @@ export const fetchWeatherForSeveralCitiesByIds = (ids) => ({
 });
 
 
+*/

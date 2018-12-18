@@ -1,7 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {
-    fetchWeatherByCityName,
     fetchCitiesByName,
     pushCityToMonitored,
     deleteCityFromMonitored,
@@ -18,8 +17,9 @@ import {SearchPanel, CityWeatherCard, CityWeatherWidget, Rubish} from '../compon
 import {fromJS, toJS, Map, Set, is} from 'immutable'
 import DevTools from './DevTools';
 import styled from 'styled-components'
-import {converseObjectChildTypesAccordingToEtalonObjectConcrete} from "../utils"
 import {showInfoNotificationWithButton} from "../service"
+import {createSelector} from "reselect"
+import {pure} from "recompose"
 
 
 const AppContainer = styled.div`
@@ -63,8 +63,8 @@ class Table extends React.Component {
     renderCities = (Component, cities, doToggleOffMonitoredWithNotification) => {
         const {monitoredCitiesPagination} = this.props;
 
-       // console.log(cities);
-       // console.log(Object.values(cities.toJS()));
+        // console.log(cities);
+        // console.log(Object.values(cities.toJS()));
 
         const citiesCards = Object.values(cities.toJS()).reduce((citiesCardsArr, city) => {
 
@@ -135,84 +135,120 @@ class Table extends React.Component {
     }
 
     componentDidUpdate() {
-        const {searchedCitiesByNamePagination, searchedName, fetchCitiesByName, cities} = this.props;
+        const {
+            foundCities,
+            isFoundCitiesPaginationNamePartFetching,
+            isFoundCitiesPaginationNamePartHasMore,
+            fetchCitiesByName,
+            searchedName,
+            foundCitiesPaginationNamePartIds
+        } = this.props;
+        /*
+        foundCities: foundCitiesSelector(state),
+        monitoredCities: monitoredCitiesSelector(state),
+        isFoundCitiesPaginationNamePartFetching,
+        isFoundCitiesPaginationNamePartHasMore,
+        isFoundCitiesPaginationNamePartIds,
+        foundCitiesByNamePagination,*/
 
-        const searchedCitiesIds = searchedCitiesByNamePagination.get(searchedName);
-        if (searchedCitiesIds) this.ensureForecastExistenceForEveryCityId(searchedCitiesIds);
-        else if (searchedName) fetchCitiesByName(searchedName);
+        console.log(this.props)
+
+        const shouldFetch = (foundCities.size < foundCitiesPaginationNamePartIds.size
+            || isFoundCitiesPaginationNamePartHasMore)
+            && !isFoundCitiesPaginationNamePartFetching;
+        if (shouldFetch) fetchCitiesByName(searchedName);
+        console.log(shouldFetch)
     };
-
-    ensureForecastExistenceForEveryCityId(searchedCitiesIds) {
-        const {cities, fetchWeatherByCityId} = this.props;
-
-        searchedCitiesIds.forEach(id => {
-                const city = cities.get(`${id}`);
-                if (!city) fetchWeatherByCityId(id);
-            }
-        )
-    }
 
     componentDidMount() {
         const {turnOnStoreForecastActualityObserver, monitoredCities, refreshForecastForCitiesIfNeeded} = this.props;
-        refreshForecastForCitiesIfNeeded(monitoredCities);
-        turnOnStoreForecastActualityObserver();
+        // refreshForecastForCitiesIfNeeded(monitoredCities);
+        // turnOnStoreForecastActualityObserver();
 
     }
 
     componentWillUnMount() {
-        turnOffStoreForecastActualityObserver();
+        // turnOffStoreForecastActualityObserver();
     }
 
     shouldComponentUpdate(nextState) {
-        /*  const monitoredChangeableKeys = ["cities", 'foundCities',
-              "monitoredCities", "monitoredCitiesPagination"];
+        //console.log("should : monitoredCities = ", nextState.monitoredCities !== this.props.monitoredCities);
+        //console.log("should : foundCities = ", nextState.foundCities !== this.props.foundCities);
 
-          const should = monitoredChangeableKeys.some((name) => {
-              const changed = !is(nextState[name], this.props[name])
-              console.log("changed name= ", name, nextState[name], this.props[name]);
-              return changed;
-          });
-
-          /!*        const {cities: nextCities, foundCities: nextFoundCities} = nextState;
-                  const {cities} = this.props;*!/
-
-          console.log("ОБновелине Root = ", nextState);
-          //   console.log("nextCities = ", nextCities);
-          console.log("should = ", should);
-          console.log("____________________");
-
-          // const shoulda = !cities.equals(nextCities);*/
         return true;
     }
 }
 
+const citiesSelector = state => state.get("entities").get('cities') || fromJS([]);
+const monitoredCitiesPaginationSelector = state => state.get("pagination").get('monitoredCitiesPagination') || Set([]);
+const foundCitiesByNamePaginationSelector = state => state.get("pagination").get('foundCitiesByNamePagination') || Set([]);
+const searchedNameSelector = state => state.get("searchedName") || '';
+
+const foundCitiesPaginationNamePartSelector = createSelector(
+    [
+        foundCitiesByNamePaginationSelector,
+        searchedNameSelector
+    ],
+    (foundCitiesByNamePagination, searchedName) => foundCitiesByNamePagination.get(searchedName) || fromJS({})
+);
+
+const foundCitiesIdsByNameSelector = createSelector(
+    foundCitiesPaginationNamePartSelector,
+    (foundCitiesPaginationNamePart) => foundCitiesPaginationNamePart.get('ids') || Set([])
+);
+
+const foundCitiesSelector = createSelector(
+    [citiesSelector, foundCitiesIdsByNameSelector],
+    (cities, foundCitiesIdsByName) => cities.filter(city => {
+        const id = city.get('id');
+        return foundCitiesIdsByName.includes(+id)
+    })
+);
+
+
+
+const monitoredCitiesSelector = createSelector(
+    [
+        citiesSelector,
+        monitoredCitiesPaginationSelector
+    ],
+    (cities, monitoredCitiesPagination) => Set([...cities.filter(city => monitoredCitiesPagination.has(city.get(`id`))).values()])
+);
+
 
 const mapStateToProps = (state) => {
 
-    const cities = state.get('entities').get('cities') || fromJS({});
     const pagination = state.get('pagination');
     const monitoredCitiesPagination = state.get('pagination').get('monitoredCitiesPagination') || fromJS([]);
-    const monitoredCities = Set([...cities.filter(city => monitoredCitiesPagination.has(city.get(`id`))).values()]);
 
     const searchedName = state.get('searchedName');
-    const searchedCitiesByNamePagination = pagination.get('searchedCitiesByNamePagination');
-    const foundCitiesIds = searchedCitiesByNamePagination.get(searchedName) || Set([]);
-    const foundCities = Set([...cities.filter(city => foundCitiesIds.has(city.get(`id`))).values()]);
+    const foundCitiesByNamePagination = pagination.get('foundCitiesByNamePagination');
+
+    const foundCitiesPaginationNamePart = foundCitiesPaginationNamePartSelector(state);
+
+    //создать селекторы
+    const isFoundCitiesPaginationNamePartFetching = typeof
+        foundCitiesPaginationNamePart.get('isFetching') === 'undefined' ? false : foundCitiesPaginationNamePart.get('isFetching');
+    const isFoundCitiesPaginationNamePartHasMore = typeof
+        foundCitiesPaginationNamePart.get('hasMore') === 'undefined' ? true : foundCitiesPaginationNamePart.get('hasMore');
+    const foundCitiesPaginationNamePartIds = foundCitiesPaginationNamePart.get('ids') || Set([])
+    //
 
     return {
-        cities,
-        foundCities,
-        monitoredCities,
+        foundCities: foundCitiesSelector(state),
+        monitoredCities: monitoredCitiesSelector(state),
+        isFoundCitiesPaginationNamePartFetching,
+        isFoundCitiesPaginationNamePartHasMore,
+        foundCitiesPaginationNamePartIds,
+        foundCitiesByNamePagination,
+
         monitoredCitiesPagination,
-        searchedCitiesByNamePagination,
         searchedName,
-        state
-    };
+    }
 };
 
 export default connect(mapStateToProps,
     {
-        fetchWeatherByCityName,
         fetchCitiesByName,
         pushCityToMonitored,
         deleteCityFromMonitored,
@@ -223,4 +259,5 @@ export default connect(mapStateToProps,
         addAndMonitorCities,
         installSearchedName
     }
-)(Table);
+)(pure(Table));
+

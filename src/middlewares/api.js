@@ -30,12 +30,14 @@ const apiMiddleware = () => next => action => {
     const {
             endpoint,
             queryParams,
-            type,
+            types: [requestAction, successAction, errorAction],
             schema,
             extractDataForNormalizingFromResponseData = data => data,
         } = callApi,
         url = buildUrl(endpoint, queryParams),
         axiosConfig = configureAxios(url);
+
+    next(requestAction(actionWith()));
 
     axios(axiosConfig)
         .then((response) => {
@@ -47,10 +49,12 @@ const apiMiddleware = () => next => action => {
             const normalizedData = normalize(dataForNormalizing, schema);
 
 
-            next(type(actionWith(normalizedData)))
+            next(successAction(actionWith(normalizedData)))
         })
         .catch(e => {
             showErrorNotification("ошибка запроса", e);
+            next(errorAction(actionWith({e: e.message})))
+
             console.log(e)
         });
 };
