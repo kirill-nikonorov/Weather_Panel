@@ -122,7 +122,6 @@ class CityWeatherCard extends React.Component {
             }
         } = this.props;
 
-
         return (
             <CityWeatherCardContainer>
                 <WeatherIcon iconId={icon}/>

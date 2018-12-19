@@ -38,7 +38,7 @@ const foundCitiesByNamePagination = handleActions(
             return state.set(cityName, newNameValue)
         }
     },
-    fromJS({})
+    fromJS({"": {hasMore: false}})
 );
 
 const searchedName = handleActions(
@@ -61,11 +61,13 @@ const monitoredCitiesPagination = handleActions(
             return state.delete(payload)
         },
         [addAndMonitorCities]: (state, {payload}) => {
-            //console.log(payload)
-            const citiesIds = payload.reduce((ids, {id}) => {
-                ids.push(id)
+            const citiesIds = payload.reduce((ids, city) => {
+                const id = city.get('id');
+                ids.push(id);
                 return ids;
             }, []);
+            console.log("addAndMonitorCities = ", citiesIds);
+
             return state.withMutations(state => {
                 citiesIds.forEach(id => {
                     state.add(id)
@@ -122,7 +124,7 @@ const entitiesReducer = handleActions(
             //console.log(payload);
             const newState = state.withMutations(state => {
                 payload.forEach(city => {
-                    const {id} = city;
+                    const id = city.get('id');
                     state.setIn(["cities", `${id}`], fromJS(city))
                 });
             });

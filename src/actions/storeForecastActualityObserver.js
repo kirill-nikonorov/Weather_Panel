@@ -1,8 +1,8 @@
 import {fetchWeatherByCityId} from "./";
 import {deleteCities} from './citiy'
-import {fromJS} from 'immutable'
+import {fromJS, Set} from 'immutable'
 
-const observerCheckRateInMilliSeconds = 60000;
+const observerCheckRateInMilliSeconds = 10000;
 const forecastActualityInSeconds = 600;
 
 export const refreshForecastForCitiesIfNeeded = cities => dispatch => {
@@ -36,18 +36,20 @@ const adjustStoreForecastAccordingToActualityRequirements = (dispatch, getState)
     const searchedName = state.get("searchedName");
     const cities = state.get("entities").get("cities");
 
-
     const pagination = state.get("pagination");
     const monitoredCitiesPagination = pagination.get("monitoredCitiesPagination");
     const foundCitiesByNamePagination = pagination.get("foundCitiesByNamePagination");
     const actuallySearchedCities = foundCitiesByNamePagination.get(searchedName) || fromJS([]);
+    const actuallySearchedCitiesIds = actuallySearchedCities.get("ids") || fromJS([]);
 
-    const monitoredCitiesIds = monitoredCitiesPagination.concat(actuallySearchedCities);
+    const monitoredCitiesIds = monitoredCitiesPagination.concat(actuallySearchedCitiesIds);
 
-    const monitoredCities = monitoredCitiesIds.map(id => cities.get(`${id}`));
+    const monitoredCities = Set([...cities.filter(city => monitoredCitiesPagination.has(city.get(`id`))).values()])
+
     const notMonitoredCities = cities.filterNot((value, id) => monitoredCitiesIds.includes(+id));
 
     if (monitoredCities.size > 0) dispatch(refreshForecastForCitiesIfNeeded(monitoredCities));
+
 
     if (notMonitoredCities.size > 0) dispatch(deleteCitiesIfExpired(notMonitoredCities))
     console.log("_____")

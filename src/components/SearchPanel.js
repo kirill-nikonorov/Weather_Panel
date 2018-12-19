@@ -1,7 +1,9 @@
 import React from "react"
-import {Search} from "./";
+import {Search, List} from "./";
 import {Button} from 'antd';
 import styled from "styled-components"
+
+import {onlyUpdateForKeys} from 'recompose';
 
 const SearchPanelContainer = styled.div`
          border-bottom: 3px solid #984040;
@@ -9,35 +11,23 @@ const SearchPanelContainer = styled.div`
 
 
 class SearchPanel extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-
-    renderCleanSearchButton = () => {
-        const {cleanSearchedName} = this.props;
-        return <Button onClick={() => cleanSearchedName()}
-                       icon="close"
-                       type="danger"/>
-    };
-
 
     render() {
-        const {onSearch, placeholder, foundCities} = this.props;
-        const isSearchSuccess = foundCities.length > 0;
+        const {onSearch, placeholder,  children, onClean } = this.props;
+        //console.log("render SearchPanel");
+
         return (
             <SearchPanelContainer>
                 <Search
                     placeholder={placeholder}
                     onSearch={onSearch}
-                    addonAfter={isSearchSuccess ? this.renderCleanSearchButton() : ""}
+                    onClean={onClean}
                 />
-                <div>
-                    {foundCities}
-                </div>
-
+                {children}
             </SearchPanelContainer>
         )
     }
 }
 
-export default SearchPanel;
+
+export default (SearchPanel);
