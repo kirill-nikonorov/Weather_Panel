@@ -134,6 +134,7 @@ class Table extends React.Component {
                         renderItem={city => this.renderCity(city)}
                     />
                 </SearchPanel>
+                aAAAAA
 
                 <DevButtons
                     installSearchedName={installSearchedName}
@@ -145,7 +146,7 @@ class Table extends React.Component {
                     items={monitoredCities}
                     renderItem={(city) => this.renderCity(city, true)}
                 />
-                <DevTools/>
+
             </AppContainer>
         );
     }
@@ -205,6 +206,8 @@ const mapStateToProps = (state) => {
         searchedName: searchedNameSelector(state),
         state
     }
+
+
 };
 
 export default connect(mapStateToProps,

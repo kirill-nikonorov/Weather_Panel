@@ -1,12 +1,20 @@
 import React from "react"
-import styled from 'styled-components'
 
 import {Input, Button} from 'antd';
+import { func, string} from "prop-types";
 
 const AntSearch = Input.Search;
 
-
 class Search extends React.Component {
+
+    static propTypes = {
+        placeholder: string.isRequired,
+        value: string,
+        onClean: func.isRequired,
+        onSearch: func.isRequired,
+
+    };
+
     constructor(props) {
         super(props);
         this.state = {value: ""}

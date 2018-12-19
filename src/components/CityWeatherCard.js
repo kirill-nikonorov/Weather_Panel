@@ -3,6 +3,9 @@ import React from "react"
 import {Switch} from 'antd';
 import styled from "styled-components"
 import {getCityForecastUrl, getCityOnMapUrl, getFlagIconUrl, getWeatherIconUrl} from "../constants/Api";
+import Immutable from "immutable";
+import {bool, func, number, object, shape, string, instanceOf } from 'prop-types';
+
 
 const Bolder = styled.span`
         font-weight: bold;
@@ -95,6 +98,12 @@ const WeatherIcon = ({iconId}) => (
 
 
 class CityWeatherCard extends React.Component {
+
+    static propTypes = {
+        city: object.isRequired,
+        isMonitored: bool.isRequired,
+    };
+
     constructor(props) {
         super(props);
     }
@@ -102,13 +111,14 @@ class CityWeatherCard extends React.Component {
     handleToggleMonitoring = () => {
         const {toggleMonitoring} = this.props;
         toggleMonitoring();
-    }
+    };
 
     renderSwitch() {
         const {isMonitored} = this.props;
         return (
             <div>
-                {isMonitored? "Отслеживается":"Отслеживать ?"} <Switch checked={isMonitored} onChange={this.handleToggleMonitoring}/>
+                {isMonitored ? "Отслеживается" : "Отслеживать ?"} <Switch checked={isMonitored}
+                                                                          onChange={this.handleToggleMonitoring}/>
             </div>
         )
     }

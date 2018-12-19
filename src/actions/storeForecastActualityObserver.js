@@ -2,7 +2,7 @@ import {fetchWeatherByCityId} from "./";
 import {deleteCities} from './citiy'
 import {fromJS, Set} from 'immutable'
 
-const observerCheckRateInMilliSeconds = 10000;
+const observerCheckRateInMilliSeconds = 30000;
 const forecastActualityInSeconds = 600;
 
 export const refreshForecastForCitiesIfNeeded = cities => dispatch => {

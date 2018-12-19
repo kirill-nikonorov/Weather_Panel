@@ -21,10 +21,10 @@ const foundCitiesIdsByNameSelector = createSelector(
 
 export const foundCitiesSelector = createSelector(
     [citiesSelector, foundCitiesIdsByNameSelector],
-    (cities, foundCitiesIdsByName) => cities.filter(city => {
+    (cities, foundCitiesIdsByName) => Set([...cities.filter(city => {
         const id = city.get('id');
         return foundCitiesIdsByName.includes(+id)
-    })
+    }).values()])
 );
 
 

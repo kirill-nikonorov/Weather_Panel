@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {fromJS, toJS} from 'immutable'
+import Immutable from 'immutable'
+const {fromJS, toJS} = Immutable;
 import {pure} from "recompose"
 import {CityWeatherCard} from '../components'
 
@@ -12,11 +13,24 @@ import {
 
     addAndMonitorCities,
 } from "../actions"
+import {bool, func, instanceOf, string , number} from "prop-types";
 
 
 
 
 class CityWeatherContainer extends React.Component {
+    static propTypes = {
+        id: number.isRequired,
+        city: instanceOf(Immutable.Map).isRequired,
+        isMonitored: bool.isRequired,
+        doToggleMonitoringWithToggleOffNotification: bool,
+
+        pushCityToMonitored:  func.isRequired,
+        deleteCityFromMonitored:  func.isRequired,
+        addAndMonitorCities:  func.isRequired,
+    };
+
+
     toggleMonitoring = (id, isMonitored) => {
         const {
             pushCityToMonitored,

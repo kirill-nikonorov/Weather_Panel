@@ -24,7 +24,7 @@ const foundCitiesByNamePagination = handleActions(
             const newNameValue = fromJS({
                 isFetching: false,
                 hasMore: false,
-                ids: result
+                ids: Set(result)
             });
             return state.set(cityName, newNameValue)
         },
@@ -32,7 +32,7 @@ const foundCitiesByNamePagination = handleActions(
             const newNameValue = fromJS({
                 isFetching: false,
                 hasMore: false,
-                ids: [],
+                ids: Set([]),
                 e
             });
             return state.set(cityName, newNameValue)

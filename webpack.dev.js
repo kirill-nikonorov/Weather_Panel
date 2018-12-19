@@ -1,9 +1,11 @@
+const merge = require("webpack-merge");
+const common = require("./webpack.common");
 const webpack = require('webpack');
 let path = require("path");
 
-module.exports = {
+module.exports = merge(common, {
     entry: {
-        client: [ './src/index.js']
+        client: ['webpack-hot-middleware/client', './src/index.js']
     },
 
     output: {
@@ -13,6 +15,7 @@ module.exports = {
     },
 
     plugins: [
+        new webpack.HotModuleReplacementPlugin(),
         new webpack.NamedModulesPlugin()
     ],
     devServer: {
@@ -21,15 +24,4 @@ module.exports = {
         hot: true
     },
     devtool: "source-map",
-
-    module: {
-        rules: [{
-            exclude: /(node_modules)/,
-            test: /\.jsx?$/,
-            loaders: "babel-loader",
-        }, {
-            test: /\.css$/,
-            use: ['style-loader', 'css-loader']
-        }]
-    },
-};
+});

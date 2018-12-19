@@ -2,8 +2,10 @@
   "name": "Weather_Panel",
   "version": "0.0.1",
   "scripts": {
+    "prebuild": "rimraf dist",
+    "build": "cross-env NODE_ENV=production  webpack -p --config webpack.prod.js",
     "start": "node ./server",
-    "dev": "webpack-dev-server --hot",
+    "dev": "node ./server/devServer",
     "prettier": "prettier --write \"./src/**/*.js\"",
     "eslint": "./node_modules/.bin/eslint --fix ."
   },
