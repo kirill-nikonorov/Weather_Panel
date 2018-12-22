@@ -14,19 +14,6 @@ const http = require("http").Server(app);
 
 app.use(express.static('public'));
 
-
-/*fs.readFile(path.resolve(__dirname, "../weather.json"), "utf8",
-    function (error, data) {
-        console.log("Асинхронное чтение файла");
-        if (error) throw error; // если возникла ошибка
-
-      //  const dataArr = JSON.parse(data, ['name', 'id']);
-        fs.writeFile("Weather.txt", data, function (err) {
-            if (err) throw err;
-        })
-    });*/
-
-
 app.use(webpackDevMiddleware(compiler, {publicPath: config.output.publicPath}));
 app.use(webpackHotMiddleware(compiler));
 

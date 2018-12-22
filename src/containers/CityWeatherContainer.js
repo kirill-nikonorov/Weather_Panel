@@ -1,22 +1,14 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import Immutable from 'immutable'
+import Immutable from 'immutable';
 const {fromJS, toJS} = Immutable;
-import {pure} from "recompose"
-import {CityWeatherCard} from '../components'
+import {pure} from 'recompose';
+import {CityWeatherCard} from '../components';
 
-import {showInfoNotificationWithButton} from "../service"
+import {showInfoNotificationWithButton} from '../service';
 
-import {
-    pushCityToMonitored,
-    deleteCityFromMonitored,
-
-    addAndMonitorCities,
-} from "../actions"
-import {bool, func, instanceOf, string , number} from "prop-types";
-
-
-
+import {pushCityToMonitored, deleteCityFromMonitored, addAndMonitorCities} from '../actions';
+import {bool, func, instanceOf, string, number} from 'prop-types';
 
 class CityWeatherContainer extends React.Component {
     static propTypes = {
@@ -25,42 +17,35 @@ class CityWeatherContainer extends React.Component {
         isMonitored: bool.isRequired,
         doToggleMonitoringWithToggleOffNotification: bool,
 
-        pushCityToMonitored:  func.isRequired,
-        deleteCityFromMonitored:  func.isRequired,
-        addAndMonitorCities:  func.isRequired,
+        pushCityToMonitored: func.isRequired,
+        deleteCityFromMonitored: func.isRequired,
+        addAndMonitorCities: func.isRequired
     };
 
-
     toggleMonitoring = (id, isMonitored) => {
-        const {
-            pushCityToMonitored,
-            deleteCityFromMonitored,
-        } = this.props;
-
+        const {pushCityToMonitored, deleteCityFromMonitored} = this.props;
 
         if (isMonitored) deleteCityFromMonitored(id);
-        else pushCityToMonitored(id)
+        else pushCityToMonitored(id);
     };
 
     toggleMonitoringWithToggleOffNotification = (id, isMonitored, city) => {
-        const {
-            pushCityToMonitored,
-            deleteCityFromMonitored,
-            addAndMonitorCities
-        } = this.props;
+        const {pushCityToMonitored, deleteCityFromMonitored, addAndMonitorCities} = this.props;
         const name = city.get('name');
 
-        const toggleOff = (id) => {
+        const toggleOff = id => {
             deleteCityFromMonitored(id);
-            showInfoNotificationWithButton(`Вы удалили ${name} из отслеживаемых ю Вернуть ?`, () => {
-                addAndMonitorCities([city])
-            })
+            showInfoNotificationWithButton(
+                `Вы удалили ${name} из отслеживаемых ю Вернуть ?`,
+                () => {
+                    addAndMonitorCities([city]);
+                }
+            );
         };
 
         if (isMonitored) toggleOff(id);
-        else pushCityToMonitored(id)
+        else pushCityToMonitored(id);
     };
-
 
     render() {
         const {
@@ -68,11 +53,13 @@ class CityWeatherContainer extends React.Component {
             city,
             Component = CityWeatherCard,
             doToggleMonitoringWithToggleOffNotification = false,
-            toggleMonitoring = doToggleMonitoringWithToggleOffNotification ? this.toggleMonitoringWithToggleOffNotification : this.toggleMonitoring,
+            toggleMonitoring = doToggleMonitoringWithToggleOffNotification
+                ? this.toggleMonitoringWithToggleOffNotification
+                : this.toggleMonitoring,
             isMonitored
         } = this.props;
 
-        console.log("Container rerendered")
+        //console.log("Container rerendered")
         return (
             <Component
                 toggleMonitoring={() => toggleMonitoring(id, isMonitored, city)}
@@ -82,20 +69,17 @@ class CityWeatherContainer extends React.Component {
             />
         );
     }
-
-
 }
-
 
 const mapStateToProps = (state, ownProps) => {
     const {city, doToggleMonitoringWithToggleOffNotification, Component} = ownProps;
 
-    const monitoredCitiesPagination = state.get('pagination').get('monitoredCitiesPagination') || fromJS([]);
+    const monitoredCitiesPagination =
+        state.get('pagination').get('monitoredCitiesPagination') || fromJS([]);
 
     const id = city.get('id');
 
     const isMonitored = monitoredCitiesPagination.has(+id);
-
 
     return {
         id,
@@ -103,14 +87,14 @@ const mapStateToProps = (state, ownProps) => {
         isMonitored,
         doToggleMonitoringWithToggleOffNotification,
         Component
-    }
+    };
 };
 
-export default connect(mapStateToProps,
+export default connect(
+    mapStateToProps,
     {
         pushCityToMonitored,
         deleteCityFromMonitored,
-        addAndMonitorCities,
+        addAndMonitorCities
     }
 )(pure(CityWeatherContainer));
-

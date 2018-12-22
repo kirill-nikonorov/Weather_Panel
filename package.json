@@ -7,7 +7,7 @@
     "start": "node ./server",
     "dev": "node ./server/devServer",
     "prettier": "prettier --write \"./src/**/*.js\"",
-    "eslint": "./node_modules/.bin/eslint --fix ."
+    "eslint": "./node_modules/.bin/eslint --fix ./src"
   },
   "dependencies": {
     "antd": "^3.6.1",

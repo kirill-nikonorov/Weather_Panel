@@ -1,15 +1,10 @@
-import {CALL_API} from "../middlewares/api"
+import {CALL_API} from '../middlewares/api';
 
-import {
-    weatherForCityByIdRequest,
-    weatherForCityByIdSuccess
+import {weatherForCityByIdRequest, weatherForCityByIdSuccess} from '../lib/reduxActions/actions';
+import {Schemas} from '../constants/Schemas';
+import {WEATHER_ENDPOINT} from '../constants/Api';
 
-} from "../lib/reduxActions/actions"
-import {Schemas} from "../constants/Schemas";
-import {WEATHER_ENDPOINT} from "../constants/Api";
-
-
-export const fetchWeatherByCityId = (id) => ({
+export const fetchWeatherByCityId = id => ({
     [CALL_API]: {
         endpoint: WEATHER_ENDPOINT,
         queryParams: {
@@ -34,6 +29,4 @@ export const fetchWeatherForSeveralCitiesByIds = (ids) => ({
         extractDataForNormalizingFromResponseData: ({list}) => list
     }
 });
-
-
 */
