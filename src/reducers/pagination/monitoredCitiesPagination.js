@@ -21,7 +21,7 @@ export const monitoredCitiesPagination = handleActions(
                 ids.push(id);
                 return ids;
             }, []);
-            console.log('addAndMonitorCities = ', citiesIds);
+            //console.log('addAndMonitorCities = ', citiesIds);
 
             return state.withMutations(state => {
                 citiesIds.forEach(id => {
@@ -30,7 +30,7 @@ export const monitoredCitiesPagination = handleActions(
             });
         },
         [deleteCities]: (state, {payload}) => {
-            console.log(payload);
+            //console.log(payload);
             return state.filterNot(id => payload.includes(id));
         }
     },

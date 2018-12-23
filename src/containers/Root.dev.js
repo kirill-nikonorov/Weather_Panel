@@ -24,7 +24,7 @@ import {
 
 import CityWeatherContainer from './CityWeatherContainer';
 
-import {CityWeatherWidget, List} from '../components';
+import {List} from '../components';
 import DevTools from './DevTools';
 
 import {bool, func, number, object, shape, string, instanceOf} from 'prop-types';
@@ -153,19 +153,20 @@ class Root extends React.Component {
                     />
                     {searchStatus}
                     <List
-                        name="searched"
+                        headerString={"Найденные :"}
+
                         items={foundCities}
                         renderItem={city => this.renderCity(city)}
                     />
                 </SearchPanelContainer>
+                {/* <DevButtons installSearchedName={installSearchedName} state={state} />*/}
 
-                <DevButtons installSearchedName={installSearchedName} state={state} />
                 <List
-                    name="monitored"
+                    headerString={"Отслеживаемые :"}
                     items={monitoredCities}
                     renderItem={city => this.renderCity(city, true)}
                 />
-                <DevTools />
+                <DevTools/>
             </AppContainer>
         );
     }
