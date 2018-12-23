@@ -52,7 +52,7 @@ const CityLink = ({name, countryCode, cityId}) => {
 };
 
 const CountryFlagIcon = ({countryCode}) => {
-    return <BaselineAlignedImage src={getFlagIconUrl(countryCode.toLowerCase())}/>;
+    return <BaselineAlignedImage src={getFlagIconUrl(countryCode.toLowerCase())} />;
 };
 
 const GreyRoundBorderLabel = styled.div`
@@ -79,9 +79,9 @@ const TemperatureBox = ({temp}) => {
 const CommonInfoBlock = ({name, countryCode, weatherDescription, cityId}) => {
     return (
         <div>
-            <CityLink name={name} countryCode={countryCode} cityId={cityId}/>
+            <CityLink name={name} countryCode={countryCode} cityId={cityId} />
             {` `}
-            <CountryFlagIcon countryCode={countryCode}/>
+            <CountryFlagIcon countryCode={countryCode} />
             {` `}
             <Bolder>{weatherDescription}</Bolder>
         </div>
@@ -89,16 +89,16 @@ const CommonInfoBlock = ({name, countryCode, weatherDescription, cityId}) => {
 };
 
 const PreciseWeatherInfoBlock = ({
-                                     temp,
-                                     temp_min,
-                                     temp_max,
-                                     windSpeed,
-                                     clouds: {all},
-                                     pressure
-                                 }) => {
+    temp,
+    temp_min,
+    temp_max,
+    windSpeed,
+    clouds: {all},
+    pressure
+}) => {
     return (
         <div>
-            <TemperatureBox temp={temp}/>
+            <TemperatureBox temp={temp} />
             {` `}
             temperature from {temp_max} to {temp_min} °С, wind {windSpeed} m/s. clouds {all} %,{' '}
             {pressure} hpa
@@ -116,7 +116,7 @@ const GeoCoordBlock = ({coord: {lat, lon}}) => {
     );
 };
 
-const WeatherIcon = ({iconId}) => <BaselineAlignedImage src={getWeatherIconUrl(iconId)}/>;
+const WeatherIcon = ({iconId}) => <BaselineAlignedImage src={getWeatherIconUrl(iconId)} />;
 
 class CityWeatherCard extends React.Component {
     static propTypes = {
@@ -138,7 +138,7 @@ class CityWeatherCard extends React.Component {
         return (
             <div>
                 {isMonitored ? 'Отслеживается' : 'Отслеживать ?'}{' '}
-                <Switch checked={isMonitored} onChange={this.handleToggleMonitoring}/>
+                <Switch checked={isMonitored} onChange={this.handleToggleMonitoring} />
             </div>
         );
     }
@@ -159,7 +159,7 @@ class CityWeatherCard extends React.Component {
 
         return (
             <CityWeatherCardContainer>
-                <WeatherIcon iconId={icon}/>
+                <WeatherIcon iconId={icon} />
                 <Block>
                     <div>
                         <CommonInfoBlock
@@ -176,7 +176,7 @@ class CityWeatherCard extends React.Component {
                             clouds={clouds}
                             pressure={pressure}
                         />
-                        <GeoCoordBlock coord={coord}/>
+                        <GeoCoordBlock coord={coord} />
                     </div>
                     {this.renderSwitch()}
                 </Block>

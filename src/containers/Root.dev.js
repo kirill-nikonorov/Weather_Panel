@@ -24,12 +24,13 @@ import {
 
 import CityWeatherContainer from './CityWeatherContainer';
 
-import {SearchPanel, CityWeatherWidget, List} from '../components';
+import {CityWeatherWidget, List} from '../components';
 import DevTools from './DevTools';
 
 import {bool, func, number, object, shape, string, instanceOf} from 'prop-types';
 
 import Immutable from 'immutable';
+import Search from '../components/Search';
 
 const {fromJS, Set} = Immutable;
 
@@ -42,14 +43,6 @@ const DevButtons = ({installSearchedName, state}) => (
             style={{width: '130px', height: '25px', backgroundColor: 'green'}}>
             {' '}
             найти Волосово
-        </div>
-        <div
-            onClick={() => {
-                fetchWeatherByCityId(472357);
-            }}
-            style={{width: '130px', height: '50px', backgroundColor: 'white'}}>
-            {' '}
-            грузить погоду по id Волосово
         </div>
 
         <div
@@ -65,7 +58,6 @@ const DevButtons = ({installSearchedName, state}) => (
 const AppContainer = styled.div`
     min-height: 100vh;
     background-color: #b5b5b5;
-
     max-width: 900px;
     margin: 0 auto;
 `;
@@ -143,45 +135,37 @@ class Root extends React.Component {
             foundCities.size === 0 &&
             !isFoundCitiesPaginationNamePartFetching &&
             !hasFoundCitiesPaginationNamePartMore;
-        //console.log("foundCities = ", foundCities);
-        //console.log("monitoredCities = ", monitoredCities);
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        const searchStatus = isFoundCitiesPaginationNamePartFetching ? (
+            <SearchStatus>Loading</SearchStatus>
+        ) : isFound ? (
+            <SearchStatus>NotFound</SearchStatus>
+        ) : (
+            ''
+        );
         return (
             <AppContainer>
-        {/*        <SearchPanelContainer>
+                <SearchPanelContainer>
                     <Search
-                        placeholder={placeholder}
-                        onSearch={onSearch}
-                        onClean={onClean}/>
-
-                    {children}
-                </SearchPanelContainer>*/}
-                <SearchPanel
-                    onSearch={this.handleCitySearchByName}
-                    placeholder="input city name"
-                    foundCities={foundCities}
-                    onClean={cleanSearchedName}>
-                    {isFoundCitiesPaginationNamePartFetching ? (
-                        <SearchStatus>Loading</SearchStatus>
-                    ) : isFound ? (
-                        <SearchStatus>NotFound</SearchStatus>
-                    ) : (
-                        ''
-                    )}
+                        value={searchedName}
+                        placeholder="input city name"
+                        onSearch={this.handleCitySearchByName}
+                        onClean={cleanSearchedName}
+                    />
+                    {searchStatus}
                     <List
                         name="searched"
                         items={foundCities}
                         renderItem={city => this.renderCity(city)}
                     />
-                </SearchPanel>
+                </SearchPanelContainer>
 
-                <DevButtons installSearchedName={installSearchedName} state={state}/>
+                <DevButtons installSearchedName={installSearchedName} state={state} />
                 <List
                     name="monitored"
                     items={monitoredCities}
                     renderItem={city => this.renderCity(city, true)}
                 />
-                <DevTools/>
+                <DevTools />
             </AppContainer>
         );
     }
@@ -209,12 +193,12 @@ class Root extends React.Component {
             monitoredCities,
             refreshForecastForCitiesIfNeeded
         } = this.props;
-        //refreshForecastForCitiesIfNeeded(monitoredCities);
-        //turnOnStoreForecastActualityObserver();
+        refreshForecastForCitiesIfNeeded(monitoredCities);
+        turnOnStoreForecastActualityObserver();
     }
 
-    componentWillUnMount() {
-        //turnOffStoreForecastActualityObserver();
+    componentWillUnmount() {
+        turnOffStoreForecastActualityObserver();
     }
 }
 
