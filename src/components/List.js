@@ -1,31 +1,31 @@
 import React from 'react';
-import {shouldUpdate} from 'recompose';
-import {func, instanceOf} from 'prop-types';
+import {pure} from 'recompose';
+import {func, instanceOf, string} from 'prop-types';
 import Immutable from 'immutable';
+import styled from "styled-components";
+
+const CentredHeader = styled.h3`
+    text-align: center 
+`;
+
 
 class List extends React.Component {
     static propTypes = {
         items: instanceOf(Immutable.Set).isRequired,
-        renderItem: func.isRequired
+        renderItem: func.isRequired,
+        headerString: string
     };
-    componentWillMount() {
-        //     console.log(this.props.name + " componentWillMount")
-    }
 
-    componentWillUpdate() {
-        // console.log(this.props.name + " componentWillUpdate")
-    }
 
     render() {
-        const {items, renderItem} = this.props;
+        const {items, renderItem, headerString} = this.props;
+
         //console.log("items = ", items);
-        return <div>{[...items.map(renderItem).values()]}</div>;
+        return <div>
+            {items.size > 0 ? <CentredHeader>{headerString}</CentredHeader> : ""}
+            {[...items.map(renderItem).values()]}</div>;
     }
 }
 
-const checkPropsChange = (props, nextProps) => {
-    //console.log("поменялся ?  = " + nextProps.name + " = ", nextProps.items !== props.items);
-    return nextProps.items !== props.items;
-};
 
-export default shouldUpdate(checkPropsChange)(List);
+export default pure(List);

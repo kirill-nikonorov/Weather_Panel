@@ -1,10 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import styled from 'styled-components';
-import {fromJS, Map, Set, is} from 'immutable';
 import {pure} from 'recompose';
-
-import {showInfoNotificationWithButton} from '../service';
 
 import {
     fetchCitiesByName,
@@ -27,51 +24,52 @@ import {
 
 import CityWeatherContainer from './CityWeatherContainer';
 
-import {SearchPanel, CityWeatherCard, CityWeatherWidget, List} from '../components';
+import {List} from '../components';
 import DevTools from './DevTools';
 
-const DevButtons = ({installSearchedName, state}) => (
-    <div>
-        <div
-            onClick={() => {
-                installSearchedName('volosovo');
-            }}
-            style={{width: '130px', height: '25px', backgroundColor: 'green'}}>
-            {' '}
-            найти Волосово
-        </div>
-        <div
-            onClick={() => {
-                fetchWeatherByCityId(472357);
-            }}
-            style={{width: '130px', height: '50px', backgroundColor: 'white'}}>
-            {' '}
-            грузить погоду по id Волосово
-        </div>
+import {bool, func, number, object, shape, string, instanceOf} from 'prop-types';
 
-        <div
-            onClick={() => {
-                console.log(state);
-            }}
-            style={{width: '130px', height: '25px', backgroundColor: 'yellow'}}>
-            store
-        </div>
-    </div>
-);
+import Immutable from 'immutable';
+import Search from '../components/Search';
+
+const {fromJS, Set} = Immutable;
 
 const AppContainer = styled.div`
     min-height: 100vh;
     background-color: #b5b5b5;
-
     max-width: 900px;
-    margin: 0;
+    margin: 0 auto;
 `;
 
 const SearchStatus = styled.div`
     margin: 5px auto;
 `;
 
-class Table extends React.Component {
+const SearchPanelContainer = styled.div`
+    border-bottom: 3px solid #984040;
+`;
+
+class Root extends React.Component {
+    static propTypes = {
+        foundCities: instanceOf(Immutable.Set).isRequired,
+        monitoredCities: instanceOf(Immutable.Set).isRequired,
+        isFoundCitiesPaginationNamePartFetching: bool.isRequired,
+        hasFoundCitiesPaginationNamePartMore: bool.isRequired,
+        foundCitiesPaginationNamePartIds: instanceOf(Immutable.Set).isRequired,
+        foundCitiesByNamePagination: instanceOf(Immutable.Map).isRequired,
+        monitoredCitiesPagination: instanceOf(Immutable.Set).isRequired,
+        searchedName: string.isRequired,
+        fetchCitiesByName: func.isRequired,
+        pushCityToMonitored: func.isRequired,
+        deleteCityFromMonitored: func.isRequired,
+        turnOnStoreForecastActualityObserver: func.isRequired,
+        fetchWeatherByCityId: func.isRequired,
+        refreshForecastForCitiesIfNeeded: func.isRequired,
+        cleanSearchedName: func.isRequired,
+        addAndMonitorCities: func.isRequired,
+        installSearchedName: func.isRequired
+    };
+
     constructor(props) {
         super(props);
     }
@@ -82,7 +80,7 @@ class Table extends React.Component {
     };
 
     renderCity = (city, doToggleMonitoringWithToggleOffNotification, Component) => {
-        //console.log("city = ", city);
+        // console.log("city = ", city);
         const id = city.get('id');
 
         const result = (
@@ -101,11 +99,9 @@ class Table extends React.Component {
 
     render() {
         const {
-            state,
             monitoredCities,
             cleanSearchedName,
             foundCities,
-            installSearchedName,
             isFoundCitiesPaginationNamePartFetching,
             hasFoundCitiesPaginationNamePartMore,
             searchedName
@@ -116,34 +112,38 @@ class Table extends React.Component {
             foundCities.size === 0 &&
             !isFoundCitiesPaginationNamePartFetching &&
             !hasFoundCitiesPaginationNamePartMore;
-        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        const searchStatus = isFoundCitiesPaginationNamePartFetching ? (
+            <SearchStatus>Loading</SearchStatus>
+        ) : isFound ? (
+            <SearchStatus>NotFound</SearchStatus>
+        ) : (
+            ''
+        );
         return (
             <AppContainer>
-                <SearchPanel
-                    onSearch={this.handleCitySearchByName}
-                    placeholder="input city name"
-                    foundCities={foundCities}
-                    onClean={cleanSearchedName}>
-                    {isFoundCitiesPaginationNamePartFetching ? (
-                        <SearchStatus>Loading</SearchStatus>
-                    ) : isFound ? (
-                        <SearchStatus>NotFound</SearchStatus>
-                    ) : (
-                        ''
-                    )}
+                <SearchPanelContainer>
+                    <Search
+                        value={searchedName}
+                        placeholder="input city name"
+                        onSearch={this.handleCitySearchByName}
+                        onClean={cleanSearchedName}
+                    />
+                    {searchStatus}
                     <List
-                        name="searched"
+                        headerString={"Найденные :"}
+
                         items={foundCities}
                         renderItem={city => this.renderCity(city)}
                     />
-                </SearchPanel>
-                aAAAAA
-                <DevButtons installSearchedName={installSearchedName} state={state} />
+                </SearchPanelContainer>
+                {/* <DevButtons installSearchedName={installSearchedName} state={state} />*/}
+
                 <List
-                    name="monitored"
+                    headerString={"Отслеживаемые :"}
                     items={monitoredCities}
                     renderItem={city => this.renderCity(city, true)}
                 />
+                <DevTools/>
             </AppContainer>
         );
     }
@@ -175,7 +175,7 @@ class Table extends React.Component {
         turnOnStoreForecastActualityObserver();
     }
 
-    componentWillUnMount() {
+    componentWillUnmount() {
         turnOffStoreForecastActualityObserver();
     }
 }
@@ -206,8 +206,7 @@ const mapStateToProps = state => {
         foundCitiesPaginationNamePartIds,
         foundCitiesByNamePagination,
         monitoredCitiesPagination,
-        searchedName: searchedNameSelector(state),
-        state
+        searchedName: searchedNameSelector(state)
     };
 };
 
@@ -224,4 +223,4 @@ export default connect(
         addAndMonitorCities,
         installSearchedName
     }
-)(pure(Table));
+)(pure(Root));

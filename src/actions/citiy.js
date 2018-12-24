@@ -7,7 +7,6 @@ import {
 import {Schemas} from '../constants/Schemas';
 import {FIND_ENDPOINT} from '../constants/Api';
 
-
 export {
     addAndMonitorCities,
     deleteCities,

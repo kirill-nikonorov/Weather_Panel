@@ -1,10 +1,6 @@
 import {createActions, createAction} from 'redux-actions';
 
-export const {
-    citiesByNameRequest,
-    citiesByNameSuccess,
-    citiesByNameError
-} = createActions(
+export const {citiesByNameRequest, citiesByNameSuccess, citiesByNameError} = createActions(
     'CITIES_BY_NAME_REQUEST',
     'CITIES_BY_NAME_SUCCESS',
     'CITIES_BY_NAME_ERROR'
