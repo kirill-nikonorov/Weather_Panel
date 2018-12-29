@@ -2,25 +2,23 @@ import {createSelector} from 'reselect';
 import {fromJS, Set} from 'immutable';
 
 const citiesSelector = state => state.get('entities').get('cities') || fromJS([]);
-const monitoredCitiesPaginationSelector = state =>
-    state.get('pagination').get('monitoredCitiesPagination') || Set([]);
-const foundCitiesByNamePaginationSelector = state =>
-    state.get('pagination').get('foundCitiesByNamePagination') || Set([]);
+const monitoredCitiesIds = state => state.get('pagination').get('monitoredCitiesIds') || Set([]);
+const foundCitiesByNameSelector = state =>
+    state.get('pagination').get('foundCitiesByName') || Set([]);
 export const searchedNameSelector = state => state.get('searchedName') || '';
 
-export const foundCitiesPaginationNamePartSelector = createSelector(
-    [foundCitiesByNamePaginationSelector, searchedNameSelector],
-    (foundCitiesByNamePagination, searchedName) =>
-        foundCitiesByNamePagination.get(searchedName) || fromJS({})
+export const foundCitiesPaginationSelector = createSelector(
+    [foundCitiesByNameSelector, searchedNameSelector],
+    (foundCitiesByName, searchedName) => foundCitiesByName.get(searchedName) || fromJS({})
 );
 
-const foundCitiesIdsByNameSelector = createSelector(
-    foundCitiesPaginationNamePartSelector,
-    foundCitiesPaginationNamePart => foundCitiesPaginationNamePart.get('ids') || Set([])
+const foundCitiesIdsSelector = createSelector(
+    foundCitiesPaginationSelector,
+    foundCitiesPagination => foundCitiesPagination.get('ids') || Set([])
 );
 
 export const foundCitiesSelector = createSelector(
-    [citiesSelector, foundCitiesIdsByNameSelector],
+    [citiesSelector, foundCitiesIdsSelector],
     (cities, foundCitiesIdsByName) =>
         Set([
             ...cities
@@ -33,7 +31,7 @@ export const foundCitiesSelector = createSelector(
 );
 
 export const monitoredCitiesSelector = createSelector(
-    [citiesSelector, monitoredCitiesPaginationSelector],
-    (cities, monitoredCitiesPagination) =>
-        Set([...cities.filter(city => monitoredCitiesPagination.has(city.get(`id`))).values()])
+    [citiesSelector, monitoredCitiesIds],
+    (cities, monitoredCitiesIds) =>
+        Set([...cities.filter(city => monitoredCitiesIds.has(city.get(`id`))).values()])
 );

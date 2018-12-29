@@ -18,14 +18,14 @@ export const refreshForecastForCitiesIfNeeded = cities => dispatch => {
 
 const deleteCitiesIfExpired = cities => dispatch => {
     console.log('+++');
-    const expireForecastCities = cities.filter(city => {
+    const expiredForecastCities = cities.filter(city => {
         const dt = city.get('dt');
         console.log(Date.now() / 1000 - dt);
         return Date.now() / 1000 - dt > forecastActualityInSeconds;
     });
 
-    console.log('expired Cities = ', expireForecastCities);
-    if (expireForecastCities.size > 0) dispatch(deleteCities([...expireForecastCities.keys()]));
+    console.log('expired Cities = ', expiredForecastCities);
+    if (expiredForecastCities.size > 0) dispatch(deleteCities([...expiredForecastCities.keys()]));
 };
 
 const adjustStoreForecastAccordingToActualityRequirements = (dispatch, getState) => {
@@ -35,22 +35,25 @@ const adjustStoreForecastAccordingToActualityRequirements = (dispatch, getState)
     const cities = state.get('entities').get('cities');
 
     const pagination = state.get('pagination');
-    const monitoredCitiesPagination = pagination.get('monitoredCitiesPagination');
-    const foundCitiesByNamePagination = pagination.get('foundCitiesByNamePagination');
-    const actuallySearchedCities = foundCitiesByNamePagination.get(searchedName) || fromJS([]);
+    const monitoredCitiesIds = pagination.get('monitoredCitiesIds');
+    const foundCitiesByName = pagination.get('foundCitiesByName');
+    const actuallySearchedCities = foundCitiesByName.get(searchedName) || fromJS({});
     const actuallySearchedCitiesIds = actuallySearchedCities.get('ids') || fromJS([]);
 
-    const monitoredCitiesIds = monitoredCitiesPagination.concat(actuallySearchedCitiesIds);
+    const citiesIdsNeededInFreshForecast = monitoredCitiesIds.concat(actuallySearchedCitiesIds);
 
-    const monitoredCities = Set([
-        ...cities.filter(city => monitoredCitiesPagination.has(city.get(`id`))).values()
+    const citiesNeededInFreshForecast = Set([
+        ...cities.filter(city => citiesIdsNeededInFreshForecast.has(city.get(`id`))).values()
     ]);
 
-    const notMonitoredCities = cities.filterNot((value, id) => monitoredCitiesIds.includes(+id));
+    const otherCities = cities.filterNot((value, id) =>
+        citiesIdsNeededInFreshForecast.includes(+id)
+    );
 
-    if (monitoredCities.size > 0) dispatch(refreshForecastForCitiesIfNeeded(monitoredCities));
+    if (citiesNeededInFreshForecast.size > 0)
+        dispatch(refreshForecastForCitiesIfNeeded(citiesNeededInFreshForecast));
 
-    if (notMonitoredCities.size > 0) dispatch(deleteCitiesIfExpired(notMonitoredCities));
+    if (otherCities.size > 0) dispatch(deleteCitiesIfExpired(otherCities));
     console.log('_____');
 };
 

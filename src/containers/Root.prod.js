@@ -17,7 +17,7 @@ import {
 } from '../actions';
 import {
     monitoredCitiesSelector,
-    foundCitiesPaginationNamePartSelector,
+    foundCitiesPaginationSelector,
     foundCitiesSelector,
     searchedNameSelector
 } from '../lib/reselect/Root/selectors';
@@ -32,7 +32,7 @@ import {bool, func, number, object, shape, string, instanceOf} from 'prop-types'
 import Immutable from 'immutable';
 import Search from '../components/Search';
 
-const {fromJS, Set} = Immutable;
+const {Set} = Immutable;
 
 const AppContainer = styled.div`
     min-height: 100vh;
@@ -53,11 +53,9 @@ class Root extends React.Component {
     static propTypes = {
         foundCities: instanceOf(Immutable.Set).isRequired,
         monitoredCities: instanceOf(Immutable.Set).isRequired,
-        isFoundCitiesPaginationNamePartFetching: bool.isRequired,
-        hasFoundCitiesPaginationNamePartMore: bool.isRequired,
-        foundCitiesPaginationNamePartIds: instanceOf(Immutable.Set).isRequired,
-        foundCitiesByNamePagination: instanceOf(Immutable.Map).isRequired,
-        monitoredCitiesPagination: instanceOf(Immutable.Set).isRequired,
+        isFoundCitiesFetching: bool.isRequired,
+        hasFoundCitiesMore: bool.isRequired,
+        foundCitiesIds: instanceOf(Immutable.Set).isRequired,
         searchedName: string.isRequired,
         fetchCitiesByName: func.isRequired,
         pushCityToMonitored: func.isRequired,
@@ -99,20 +97,22 @@ class Root extends React.Component {
 
     render() {
         const {
+            state,
             monitoredCities,
             cleanSearchedName,
             foundCities,
-            isFoundCitiesPaginationNamePartFetching,
-            hasFoundCitiesPaginationNamePartMore,
+            installSearchedName,
+            isFoundCitiesFetching,
+            hasFoundCitiesMore,
             searchedName
         } = this.props;
 
         const isFound =
             searchedName !== '' &&
             foundCities.size === 0 &&
-            !isFoundCitiesPaginationNamePartFetching &&
-            !hasFoundCitiesPaginationNamePartMore;
-        const searchStatus = isFoundCitiesPaginationNamePartFetching ? (
+            !isFoundCitiesFetching &&
+            !hasFoundCitiesMore;
+        const searchStatus = isFoundCitiesFetching ? (
             <SearchStatus>Loading</SearchStatus>
         ) : isFound ? (
             <SearchStatus>NotFound</SearchStatus>
@@ -130,20 +130,16 @@ class Root extends React.Component {
                     />
                     {searchStatus}
                     <List
-                        headerString={"Найденные :"}
-
+                        headerString={'Найденные :'}
                         items={foundCities}
                         renderItem={city => this.renderCity(city)}
                     />
                 </SearchPanelContainer>
-                {/* <DevButtons installSearchedName={installSearchedName} state={state} />*/}
-
                 <List
-                    headerString={"Отслеживаемые :"}
+                    headerString={'Отслеживаемые :'}
                     items={monitoredCities}
                     renderItem={city => this.renderCity(city, true)}
                 />
-                <DevTools/>
             </AppContainer>
         );
     }
@@ -151,17 +147,16 @@ class Root extends React.Component {
     componentDidUpdate() {
         const {
             foundCities,
-            isFoundCitiesPaginationNamePartFetching,
-            hasFoundCitiesPaginationNamePartMore,
+            isFoundCitiesFetching,
+            hasFoundCitiesMore,
             fetchCitiesByName,
             searchedName,
-            foundCitiesPaginationNamePartIds
+            foundCitiesIds
         } = this.props;
 
         const shouldFetch =
-            (foundCities.size < foundCitiesPaginationNamePartIds.size ||
-                hasFoundCitiesPaginationNamePartMore) &&
-            !isFoundCitiesPaginationNamePartFetching;
+            (foundCities.size < foundCitiesIds.size || hasFoundCitiesMore) &&
+            !isFoundCitiesFetching;
         if (shouldFetch) fetchCitiesByName(searchedName);
     }
 
@@ -181,32 +176,26 @@ class Root extends React.Component {
 }
 
 const mapStateToProps = state => {
-    const pagination = state.get('pagination');
-    const monitoredCitiesPagination =
-        state.get('pagination').get('monitoredCitiesPagination') || fromJS([]);
-    const foundCitiesByNamePagination = pagination.get('foundCitiesByNamePagination');
+    const foundCitiesPagination = foundCitiesPaginationSelector(state);
 
-    const foundCitiesPaginationNamePart = foundCitiesPaginationNamePartSelector(state);
-
-    const isFoundCitiesPaginationNamePartFetching =
-        typeof foundCitiesPaginationNamePart.get('isFetching') === 'undefined'
+    const isFoundCitiesFetching =
+        typeof foundCitiesPagination.get('isFetching') === 'undefined'
             ? false
-            : foundCitiesPaginationNamePart.get('isFetching');
-    const hasFoundCitiesPaginationNamePartMore =
-        typeof foundCitiesPaginationNamePart.get('hasMore') === 'undefined'
+            : foundCitiesPagination.get('isFetching');
+    const hasFoundCitiesMore =
+        typeof foundCitiesPagination.get('hasMore') === 'undefined'
             ? true
-            : foundCitiesPaginationNamePart.get('hasMore');
-    const foundCitiesPaginationNamePartIds = foundCitiesPaginationNamePart.get('ids') || Set([]);
+            : foundCitiesPagination.get('hasMore');
+    const foundCitiesIds = foundCitiesPagination.get('ids') || Set([]);
 
     return {
         foundCities: foundCitiesSelector(state),
         monitoredCities: monitoredCitiesSelector(state),
-        isFoundCitiesPaginationNamePartFetching,
-        hasFoundCitiesPaginationNamePartMore,
-        foundCitiesPaginationNamePartIds,
-        foundCitiesByNamePagination,
-        monitoredCitiesPagination,
-        searchedName: searchedNameSelector(state)
+        searchedName: searchedNameSelector(state),
+        isFoundCitiesFetching,
+        hasFoundCitiesMore,
+        foundCitiesIds,
+        state
     };
 };
 

@@ -7,7 +7,7 @@ import {
 import {Set} from 'immutable';
 import {handleActions} from 'redux-actions';
 
-export const monitoredCitiesPagination = handleActions(
+export const monitoredCitiesIds = handleActions(
     {
         [pushCityToMonitored]: (state, {payload}) => {
             return state.add(payload);

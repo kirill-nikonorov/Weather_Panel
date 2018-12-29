@@ -1,7 +1,7 @@
 import {combineReducers} from 'redux-immutable';
 import {fromJS} from 'immutable';
-import {foundCitiesByNamePagination} from './pagination/foundCitiesByNamePagination';
-import {monitoredCitiesPagination} from './pagination/monitoredCitiesPagination';
+import {foundCitiesByName} from './pagination/foundCitiesByName';
+import {monitoredCitiesIds} from './pagination/monitoredCitiesIds';
 import {searchedName} from './searchedNameReducer';
 import {entitiesReducer} from './entitiesReducer';
 
@@ -32,14 +32,14 @@ const replaceWeatherListMixedByMergingDataWithNewData = (newStore, newEntities, 
     });
 };
 
-const paginationReducer = combineReducers({
-    monitoredCitiesPagination,
-    foundCitiesByNamePagination
+const pagination = combineReducers({
+    monitoredCitiesIds,
+    foundCitiesByName
 });
 
 const rootReducer = combineReducers({
     entities,
-    pagination: paginationReducer,
+    pagination,
     searchedName
 });
 

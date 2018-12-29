@@ -6,7 +6,7 @@ import {
 import {fromJS, Set} from 'immutable';
 import {handleActions} from 'redux-actions';
 
-export const foundCitiesByNamePagination = handleActions(
+export const foundCitiesByName = handleActions(
     {
         [citiesByNameRequest]: (state, {payload: {cityName}}) => {
             return state.setIn([cityName, 'isFetching'], true);

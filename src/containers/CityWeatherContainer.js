@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import Immutable from 'immutable';
+
 const {fromJS, toJS} = Immutable;
 import {pure} from 'recompose';
 import {CityWeatherCard} from '../components';
@@ -63,7 +64,6 @@ class CityWeatherContainer extends React.Component {
         return (
             <Component
                 toggleMonitoring={() => toggleMonitoring(id, isMonitored, city)}
-                key={id}
                 city={city.toJS()}
                 isMonitored={isMonitored}
             />
@@ -75,7 +75,7 @@ const mapStateToProps = (state, ownProps) => {
     const {city, doToggleMonitoringWithToggleOffNotification, Component} = ownProps;
 
     const monitoredCitiesPagination =
-        state.get('pagination').get('monitoredCitiesPagination') || fromJS([]);
+        state.get('pagination').get('monitoredCitiesIds') || fromJS([]);
 
     const id = city.get('id');
 
